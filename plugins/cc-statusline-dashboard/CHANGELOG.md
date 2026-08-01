@@ -2,6 +2,13 @@
 
 All notable changes to the cc-statusline-dashboard plugin.
 
+## Unreleased
+
+- New `/cc-statusline-dashboard:diagnose` skill: gate-by-gate troubleshooting
+  for dead statusline links (raw-link probe, hover-tooltip triage, the three
+  VS Code settings that gate OSC 8 delivery on Windows, per-terminal/per-OS
+  pain points, upstream issue references)
+
 ## 1.0.0 — 2026-07-25
 
 Initial release.

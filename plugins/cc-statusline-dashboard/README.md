@@ -101,6 +101,19 @@ install, removes the protocol registration and deployed files. On Windows,
 **Settings > Apps > "Claude Control Protocol (claudectl)" > Uninstall** does
 the same. Then `/plugin uninstall cc-statusline-dashboard` removes the plugin.
 
+## Troubleshooting
+
+```
+/cc-statusline-dashboard:diagnose
+```
+
+Links dead? Clicks landing in Quick Open / workspace search? Five independent
+gates must all be open for a link to work, and each fails silently with the
+same symptom. The diagnose skill bisects the chain with probes (raw-link test,
+hover-tooltip triage, handler dry-run) instead of guessing. Notably: on Windows
++ VS Code, `terminal.integrated.windowsUseConptyDll` defaults to true and the
+bundled conpty.dll strips OSC 8 hyperlinks entirely — set it to `false`.
+
 ## Customizing the glyphs
 
 Both badge scales live in one place at the top of `statusline.js`
@@ -118,5 +131,6 @@ statusline/claudectl-handler.ps1   protocol handler — read-only, Explorer-only
 statusline/claudectl-unregister.ps1  full reversal incl. statusline restore
 statusline/claudectl.vbs           windowless launcher (no console flash)
 skills/install, skills/uninstall   the /cc-statusline-dashboard:* skills
+skills/diagnose                    gate-by-gate link troubleshooting
 docs/customizing-glyphs.md         alternative glyph ramps + caveats
 ```
