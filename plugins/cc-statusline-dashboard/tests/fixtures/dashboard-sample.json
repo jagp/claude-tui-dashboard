@@ -1,0 +1,15 @@
+{
+  "version": 1,
+  "row": [
+    {
+      "type": "button",
+      "glyph": "🔥",
+      "tooltip": "cache+hot+4:12+left",
+      "action": "claudectl://open/C:/Users/jared",
+      "keybind": "ctrl+alt+c"
+    },
+    { "type": "flex" },
+    { "type": "divider", "glyph": "|" },
+    { "type": "button", "glyph": "📈", "tooltip": "tokens+today+81k" }
+  ]
+}
