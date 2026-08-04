@@ -2,6 +2,46 @@
 
 All notable changes to the cc-statusline-dashboard plugin.
 
+## Unreleased — goal-state density (2026-08-04)
+
+The full T0 "wire-up-now" shelf from the possibility-space catalog
+(`docs/superpowers/specs/2026-08-01-dashboard-possibility-space.md`), on top
+of the tooltip paradigm. No new handler verbs — every click is still
+tip / copy / open / spawn or https.
+
+- **Threshold colors everywhere**: context gauge colored by the honest
+  autocompact-aware usable % (window − 33k reserve, exact math in the hover);
+  rate-window remaining % green/yellow/red; burn rate colored, with a red 🪫
+  swap when the projection runs dry *before* the reset; max-effort ★ in
+  yellow; vim chip colored by mode; dim `|` separators
+- **New line-1 meters**: 💸 spend rate ($/h, after 10 min), ⏱ session clock
+  (hover: API share / thinking ratio), 🔥/🧊 prompt-cache warmth countdown
+  (TTL tier + anchor sensed from the transcript tail), ±churn badge
+  (lines added/removed, hidden at zero), Σ hover gains the cache hit rate
+- **New line-1 chips**: 📂+n added workspace dirs (hover lists them), 👤
+  account (best-effort ~/.claude.json read, 6h cache), 🥚→🐉 session buddy
+  (growth = lines+minutes+ktokens; kaomoji mood in the hover reads real
+  context/quota pressure; `CC_STATUSLINE_NO_PET=1` to hide), and a staleness
+  clock (dim hh:mm:ss render stamp; yellow `*` once the payload has been
+  frozen >2.5 min — the long-turn stall detector)
+- **Line-2 git intel**: ↑ahead ↓behind ●staged ✚modified …untracked
+  ✖conflicts ⚑stash + red MERGE/REBASE/CHERRY-PICK/BISECT in-progress flag;
+  green ✔ when clean. One `git --no-optional-locks status --porcelain=v2`
+  cached under ~/.claude/dashboard-state/, invalidated by .git HEAD/index
+  mtimes or 15s TTL; op flags and stash depth are free fs peeks; worktree
+  `gitdir:` pointers resolved
+- **Line-2 CI rollup**: 🚦 passed/total colored by state, click opens the
+  PR checks page. Stale-while-revalidate: renders only read the cache; a
+  detached `--ci-refresh` child re-runs `gh pr checks` (lock-file guarded,
+  TTL 90s pending / 5m settled / 15m after failure);
+  `CC_STATUSLINE_NO_SPAWN=1` disables the child
+- Burn-rate hover now carries the 7d window and a RUNS-DRY-BEFORE-RESET
+  warning when applicable
+- Test suite: 50 → 80 checks (churn, clock, spend, usable %, colors, cache
+  warm/cold, scratch-repo git intel incl. MERGE flag, canned CI cache,
+  added-dirs, account, pet + kill switch, staleness stamp, and an
+  everything-on URI physics sweep)
+
 ## 1.0.0 — 2026-07-25
 
 Initial release.

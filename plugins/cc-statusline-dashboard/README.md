@@ -1,36 +1,66 @@
 # cc-statusline-dashboard
 
-A two-line Claude Code statusline where everything you'd want to jump to is a
-**clickable link**, and the session's vital signs read off self-ordering glyphs
-— no legend needed.
+A Claude Code statusline where everything you'd want to jump to is a
+**clickable link**, every glyph is a **gauge wearing an emoji face** (hover it
+— the tooltip carries the exact numbers as designed prose), and the session's
+vital signs read off self-ordering glyphs and threshold colors — no legend
+needed.
 
 ```
-🏆●   ⌛ 80% [15:20]  |  📅 62% [7/28 4:37]  |  Σ 162345
-⑂ f/cc-statusline-dashboard   🔗 PR #12   [📒] [📜] [🌳]
+🏆● ▅ 42% ⚠   ⌛ 77% [15:20] | 📅 39% [8/5 19:20] | 🔋 4.2%/h empty ~18:40 | Σ 96310 | ~$3.42 | 💸 $2.28/h | ⏱ 1h30m | 🔥 4:12   my-session +120-30 NORMAL 💭 ⚡ 🎨 explanatory 👤 🐉 14:32:07
+⑂ f/my-feature ↑2 ●3 ✚1 …1   🔗 PR #12   🚦 2/3   [📒] [📜] [🌳]
 ```
 
 ## What each piece means
 
-**Line 1 — vitals**
+**Line 1 — vitals** (green/yellow/red = each meter's own thresholds)
 
 | Piece | Meaning |
 |-------|---------|
 | 🥉 🥈 🥇 🏆 | Model as a medal ladder: haiku → sonnet → opus → fable (🎖️ = unknown model) |
-| ○ ◐ ● ◉ ★ | Reasoning effort: low → medium → high → xhigh (ultracode) → max |
-| ⌛ `80% [15:20]` | 5-hour rate-limit window: **remaining** % and the reset time |
-| 📅 `62% [7/28 4:37]` | 7-day window, same format (any future window renders generically) |
-| Σ `162345` | Exact session token count — raw digits, never abbreviated |
+| ○ ◐ ● ◉ ★ | Reasoning effort: low → medium → high → xhigh (ultracode) → max (yellow star) |
+| ▁▃▅▇█ `42%` | Context-window fill. Colored by the honest **autocompact-aware usable %** (window − 33k reserve — hover for the math), so it warns *before* autocompact looms |
+| ⚠ | 1M-context / usage-credit trap: a `[1m]` model or >200k session burns credits fast |
+| ⌛ `77% [15:20]` | 5-hour rate-limit window: **remaining** % (colored) and the reset time |
+| 📅 `39% [8/5 19:20]` | 7-day window, same format (any future window renders generically) |
+| 🔋/🪫 `4.2%/h empty ~18:40` | Burn rate + depletion ETA, projected from render-to-render history. 🪫 red = you run dry **before** the reset |
+| Σ `96310` | Exact session token count — raw digits, never abbreviated (hover: per-stream breakdown + cache hit rate) |
+| ~$`3.42` | Estimated session cost (hover: wall vs API time) |
+| 💸 `$2.28/h` | Spend rate, projected linearly (shown after 10 min) |
+| ⏱ `1h30m` | Session wall clock (hover: API share — the "thinking ratio") |
+| 🔥 `4:12` / 🧊 | Prompt-cache warmth: countdown to TTL expiry, sensed from the transcript tail; 🧊 = cold, next message re-pays the cache write |
+| `my-session` | Session chip, hue hashed from the session id (stable across panes); click copies the id |
+| `+120-30` | Lines added/removed this session (hidden at zero) |
+| `NORMAL` 💭 ⚡ 🤖 🎨 📂+n | Mode chips, smart-hidden when absent: vim mode (INSERT green / VISUAL magenta), thinking, fast mode, agent, output style, added workspace dirs |
+| 👤 | Account chip — hover shows which account this terminal burns quota on |
+| 🥚🐣🐥🦕🐉 | Session buddy: grows with lines + minutes + tokens; hover shows its level, kaomoji mood (reads real context/quota pressure), and vitals. `CC_STATUSLINE_NO_PET=1` hides it |
+| `14:32:07` | Staleness clock: when this render happened; turns yellow with a `*` when the payload has been frozen >2.5 min (long turn) |
 
 **Line 2 — navigation (every item is an OSC 8 hyperlink; Ctrl/Alt+click)**
 
 | Link | Opens |
 |------|-------|
 | ⑂ `f/branch-name` | The branch/worktree folder in your file manager (branch names compact to `f/first-three-words`) |
-| 🔗 `PR #12` | The pull request on GitHub |
+| ↑2 ↓1 ●3 ✚1 …1 ✖1 ⚑2 | Git intel: ahead/behind, staged, modified, untracked, conflicts, stash — plus a red `MERGE`/`REBASE`/`CHERRY-PICK`/`BISECT` flag when an operation is in progress; a lone green ✔ = clean |
+| 🔗 `PR #12` | The pull request on GitHub, colored by review state (green approved · red changes requested · yellow pending · dim draft) |
+| 🚦 `2/3` | CI check rollup (via `gh`, refreshed in a detached child — renders never block); click opens the checks page |
 | 🌐 / 🐛 / 📁 | Fallback links (repo, issues, cwd) so line 2 always has at least two |
 | [📒] | The Claude Code logs folder for this session |
 | [📜] | The session transcript file |
 | [🌳] | The base branch on GitHub (or the trunk folder locally) |
+
+## Hover tooltips
+
+Most segments are OSC 8 links whose URI **is** the tooltip —
+`claudectl://tip/5h+23.4%25+resets+15:20+remaining+77%25` reads as prose in the
+hover bubble. Tips are space-free printable ASCII (VS Code collapses any
+whitespace-bearing URI to the word "Link"; Windows Terminal shows the first
+1024 chars), and a click on a `tip` link is a no-op in the handler — except
+tip + `/do/` composites (like the session chip), which confirm before
+re-dispatching through the same allowlist. Sensors persist tiny caches under
+`~/.claude/dashboard-state/`; add `"refreshInterval"` to your `statusLine`
+setting so countdowns tick while you're idle. `CC_STATUSLINE_NO_SPAWN=1`
+disables the detached CI refresh child.
 
 ## Why the Windows `claudectl://` protocol
 
