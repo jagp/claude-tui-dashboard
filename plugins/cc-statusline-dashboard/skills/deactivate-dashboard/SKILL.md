@@ -1,14 +1,14 @@
 ---
-name: uninstall
-description: This skill should be used when the user asks to "uninstall the clickable statusline", "remove the statusline plugin", "restore my old statusline", "unregister claudectl", or runs /cc-statusline-dashboard:uninstall. Restores the pre-install statusline and settings and removes the Windows claudectl:// protocol.
+name: deactivate-dashboard
+description: This skill should be used when the user asks to "deactivate the dashboard", "deactivate dashboard", "uninstall the clickable statusline", "restore my old statusline", "unregister claudectl", or runs /cc-statusline-dashboard:deactivate-dashboard. Restores the pre-activation statusline and settings and removes the Windows claudectl:// protocol.
 allowed-tools: Read, Write, Edit, Bash
 ---
 
-# Uninstall the clickable statusline
+# Deactivate the dashboard
 
-Fully reverse `/cc-statusline-dashboard:install`: restore whatever statusline was
-live before, restore the previous `statusLine` setting, and on Windows remove
-the `claudectl://` protocol registration and its deployed files.
+Fully reverse `/cc-statusline-dashboard:activate-dashboard`: restore whatever
+statusline was live before, restore the previous `statusLine` setting, and on
+Windows remove the `claudectl://` protocol registration and its deployed files.
 
 ## Step 1 — Windows: run the unregister script
 
@@ -28,7 +28,7 @@ the deployed handler files. It is idempotent — safe to run twice.
 
 If `~/.claude/statusline.js.pre-claudectl.bak` exists, move it over
 `~/.claude/statusline.js`. If no backup exists (there was no statusline before
-install), delete `~/.claude/statusline.js`.
+activation), delete `~/.claude/statusline.js`.
 
 ## Step 3 — Restore settings.json
 
@@ -36,7 +36,7 @@ install), delete `~/.claude/statusline.js`.
    `statusLine` key in `~/.claude/settings.json` back to that saved value,
    then delete the backup file.
 2. Otherwise remove the `statusLine` key entirely (there was none before
-   install).
+   activation).
 3. Preserve every other key in settings.json.
 
 ## Step 4 — Verify and report

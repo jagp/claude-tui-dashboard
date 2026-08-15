@@ -54,24 +54,30 @@ by any web page and probing a UNC path would auto-send NTLM credentials.
 - Windows for the `claudectl://` Explorer integration (everything else is
   cross-platform)
 
-## Install
+## Install & activate
 
 ```
 /plugin marketplace add <path-or-git-url-of-this-repo>
 /plugin install cc-statusline-dashboard@claude-dashboard
-/cc-statusline-dashboard:install
+/cc-statusline-dashboard:activate-dashboard
 ```
 
-The install skill:
+Activation refuses to run unless the plugin is installed and active through
+`/plugin` — a bare repo checkout cannot deploy. The activate-dashboard skill:
 
 1. Backs up your current `statusLine` setting and statusline script (once —
-   re-installing never overwrites the original backup)
+   re-activating never overwrites the original backup)
 2. On Windows, registers `claudectl://` (HKCU, no admin) and adds a
    **Settings > Apps** entry ("Claude Control Protocol (claudectl)") so the
    OS-standard uninstall flow works too
 3. Deploys `statusline.js` to `~/.claude/` and points
    `settings.json > statusLine` at it
 4. Verifies by piping a sample payload through the deployed script
+
+Passing a JSON object to activate-dashboard switches it to config mode: the
+object is validated against the dashboard.json v1 shape and echoed back as
+JSON only — no deployment. This is the seam for the web editor's exported
+artifact; future versions will act on it.
 
 ### Manual install
 
@@ -90,14 +96,14 @@ Copy `statusline/statusline.js` to `~/.claude/statusline.js`, then add to
 On Windows, additionally run
 `powershell -NoProfile -ExecutionPolicy Bypass -File statusline/claudectl-register.ps1`.
 
-## Uninstall
+## Deactivate
 
 ```
-/cc-statusline-dashboard:uninstall
+/cc-statusline-dashboard:deactivate-dashboard
 ```
 
 Restores the statusline and `statusLine` setting that were live before
-install, removes the protocol registration and deployed files. On Windows,
+activation, removes the protocol registration and deployed files. On Windows,
 **Settings > Apps > "Claude Control Protocol (claudectl)" > Uninstall** does
 the same. Then `/plugin uninstall cc-statusline-dashboard` removes the plugin.
 
@@ -117,6 +123,6 @@ statusline/claudectl-register.ps1  Windows protocol installer (idempotent, HKCU)
 statusline/claudectl-handler.ps1   protocol handler — read-only, Explorer-only
 statusline/claudectl-unregister.ps1  full reversal incl. statusline restore
 statusline/claudectl.vbs           windowless launcher (no console flash)
-skills/install, skills/uninstall   the /cc-statusline-dashboard:* skills
+skills/activate-dashboard, skills/deactivate-dashboard   the /cc-statusline-dashboard:* skills
 docs/customizing-glyphs.md         alternative glyph ramps + caveats
 ```

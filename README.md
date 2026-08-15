@@ -25,7 +25,7 @@ every destination is a clickable link.
 ```
 /plugin marketplace add <path-or-git-url-of-this-repo>
 /plugin install cc-statusline-dashboard@claude-dashboard
-/cc-statusline-dashboard:install
+/cc-statusline-dashboard:activate-dashboard
 ```
 
 Requirements: Node.js, a hyperlink-aware terminal (Windows Terminal, VS Code,
@@ -38,7 +38,7 @@ non-destructive, manual install steps — in
 
 ## Uninstall
 
-`/cc-statusline-dashboard:uninstall` restores whatever statusline was live before
+`/cc-statusline-dashboard:deactivate-dashboard` restores whatever statusline was live before
 install. On Windows, **Settings > Apps > "Claude Control Protocol (claudectl)"**
 does the same via the OS-standard flow.
 
@@ -55,7 +55,7 @@ gemstones, …) plus terminal-rendering caveats:
 .claude-plugin/marketplace.json     marketplace listing
 plugins/cc-statusline-dashboard/    the installable plugin (single source of truth)
   statusline/                       statusline.js + claudectl protocol scripts
-  skills/install, skills/uninstall  the /cc-statusline-dashboard:* skills
+  skills/activate-dashboard, skills/deactivate-dashboard  the /cc-statusline-dashboard:* skills
   docs/customizing-glyphs.md        glyph-ramp catalog
   CHANGELOG.md · LICENSE · README.md
 docs/superpowers/                   design spec & implementation plan for the

@@ -2,6 +2,18 @@
 
 All notable changes to the cc-statusline-dashboard plugin.
 
+## 1.1.0 — 2026-08-15
+
+- Skills renamed to activation verbs: `install` → `activate-dashboard`,
+  `uninstall` → `deactivate-dashboard` (same steps, same restore points)
+- `activate-dashboard` now refuses to run outside an active plugin install
+  (base directory must resolve under `.claude/plugins/` — bare checkouts
+  cannot deploy)
+- `activate-dashboard` accepts an optional JSON object argument (config
+  mode): validates against the dashboard.json v1 shape and outputs ONLY the
+  normalized JSON — no deployment. Extensibility seam for the web editor's
+  exported artifact; future versions will act on it.
+
 ## 1.0.0 — 2026-07-25
 
 Initial release.
