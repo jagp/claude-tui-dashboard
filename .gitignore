@@ -1,5 +1,6 @@
 # Claude Code session-local state (worktrees, caches, local settings)
 .claude/
+omnilog.md
 
 # Node
 node_modules/
