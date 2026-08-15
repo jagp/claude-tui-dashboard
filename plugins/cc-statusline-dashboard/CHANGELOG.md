@@ -12,7 +12,7 @@ tip / copy / open / spawn or https.
 - **Threshold colors everywhere**: context gauge colored by the honest
   autocompact-aware usable % (window − 33k reserve, exact math in the hover);
   rate-window remaining % green/yellow/red; burn rate colored, with a red 🪫
-  swap when the projection runs dry *before* the reset; max-effort ★ in
+  swap when the projection runs dry _before_ the reset; max-effort ★ in
   yellow; vim chip colored by mode; dim `|` separators
 - **New line-1 meters**: 💸 spend rate ($/h, after 10 min), ⏱ session clock
   (hover: API share / thinking ratio), 🔥/🧊 prompt-cache warmth countdown
@@ -41,6 +41,13 @@ tip / copy / open / spawn or https.
   warm/cold, scratch-repo git intel incl. MERGE flag, canned CI cache,
   added-dirs, account, pet + kill switch, staleness stamp, and an
   everything-on URI physics sweep)
+
+## Unreleased
+
+- New `/cc-statusline-dashboard:diagnose` skill: gate-by-gate troubleshooting
+  for dead statusline links (raw-link probe, hover-tooltip triage, the three
+  VS Code settings that gate OSC 8 delivery on Windows, per-terminal/per-OS
+  pain points, upstream issue references)
 
 ## 1.0.0 — 2026-07-25
 
