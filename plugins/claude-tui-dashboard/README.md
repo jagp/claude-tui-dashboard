@@ -144,6 +144,22 @@ hover-tooltip triage, handler dry-run) instead of guessing. Notably: on Windows
 + VS Code, `terminal.integrated.windowsUseConptyDll` defaults to true and the
 bundled conpty.dll strips OSC 8 hyperlinks entirely — set it to `false`.
 
+## Widgets (the dashboard row)
+
+An optional third line driven by `~/.claude/dashboard.json` — the same file
+the web configurator (`webapp/`) exports. Wire a glyph into one of its twelve
+numbered slots straight from a session:
+
+```
+/cc-statusline-dashboard:add-widget 3 🔥
+```
+
+Bare `/cc-statusline-dashboard:add-widget` prints the slot map/legend. The
+skill warns past a 78-cell soft cap (the row may wrap), confirms before
+overwriting an occupied slot, and speaks the shared draft contract in
+`docs/widget-schema.md` (phase 1: glyph + slot; click actions and hover
+tooltips are the next phases).
+
 ## Customizing the glyphs
 
 Both badge scales live in one place at the top of `statusline.js`
@@ -162,5 +178,7 @@ statusline/claudectl-unregister.ps1  full reversal incl. statusline restore
 statusline/claudectl.vbs           windowless launcher (no console flash)
 skills/install, skills/uninstall   the /claude-tui-dashboard:* skills
 skills/diagnose                    gate-by-gate link troubleshooting
+skills/add-widget                  wire a glyph into a dashboard-row slot
 docs/customizing-glyphs.md         alternative glyph ramps + caveats
+docs/widget-schema.md              the shared dashboard.json widget contract (draft)
 ```

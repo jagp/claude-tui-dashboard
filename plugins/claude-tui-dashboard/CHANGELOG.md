@@ -64,6 +64,19 @@ tip / copy / open / spawn or https.
 
 ## Unreleased
 
+- New `/cc-statusline-dashboard:add-widget` skill: wires a glyph into a
+  numbered dashboard-row slot (p1 = slot 1–12, then the emoji itself; click
+  actions and hover tooltips reserved for phases 2–3). Prints the slot
+  map/legend (bare invocation = legend only), warns past the 78-cell soft
+  cap, and confirms before overwriting an occupied slot — a glyph-only
+  overwrite that preserves the occupant's tooltip/action/keybind (the seam
+  for a future `overwrite-widget-glyph` function). Backed by the
+  deterministic `skills/add-widget/scripts/widget-map.js` (exit 3 =
+  occupied) and `docs/widget-schema.md` — the first draft of the shared
+  webapp ↔ statusline widget contract: additive `slot` field on v1 buttons
+  (the wire file stays `version: 1`), 12 slots × 5 cells on a 78-cell line,
+  stable-insertion no-clobber rule, and the glyph-identity roadmap (Unicode
+  code points; emoji have no ISO keystroke IDs)
 - New `/cc-statusline-dashboard:diagnose` skill: gate-by-gate troubleshooting
   for dead statusline links (raw-link probe, hover-tooltip triage, the three
   VS Code settings that gate OSC 8 delivery on Windows, per-terminal/per-OS
