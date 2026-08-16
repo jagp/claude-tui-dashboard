@@ -920,7 +920,10 @@ function ciSegment(d, cwd) {
 // --- dashboard row (line 3) ---------------------------------------------------
 
 // The webapp exports ~/.claude/dashboard.json (v1: {version, row:[…]}); when
-// it parses and matches, its row renders as a third line. Buttons compose
+// it parses and matches, its row renders as a third line. The widget layer
+// (numbered `slot` fields, wired by the add-widget skill) rides this same v1
+// row additively — contract: docs/widget-schema.md; slots are render-order
+// here and deliberately ignored, like `keybind`. Buttons compose
 // their URI per the shared tip/do contract, dividers render dim, flex items
 // become padding — spread across COLUMNS when the terminal reports a width,
 // else a fixed three-space gap. Anything invalid (missing file, bad JSON,
