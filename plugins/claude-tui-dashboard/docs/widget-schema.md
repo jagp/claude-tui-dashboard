@@ -6,6 +6,10 @@
 implements a subset; this document is the meeting point they converge on.
 Revise here first, then bring the implementations along.
 
+> `webapp/…` paths here point into the plugin's **source repository** — the
+> installed plugin ships without the webapp. Everything a skill needs at
+> runtime is stated inline in this document.
+
 ## The wire file
 
 `~/.claude/dashboard.json`, overridable via the `DASHBOARD_JSON` env var — the
@@ -38,14 +42,24 @@ A **widget** is a v1 `button` item claiming a numbered **slot**:
 |-----------|:-----:|----------|---------|
 | `glyph`   | 1     | live     | The emoji, representing itself (see "Glyph identity" below) |
 | `slot`    | 1     | live     | Integer `1..12`, the widget's numbered position along the row |
-| `action`  | 2     | reserved | `claudectl://` / `https` URI, composed per the tip/do rule in `webapp/README.md` |
-| `tooltip` | 3     | reserved | Hover prose — ASCII 32–126, no raw spaces, ≤1000 chars (same doc) |
+| `action`  | 2     | reserved | `claudectl://` / `https` URI, composed per the tip/do rule below |
+| `tooltip` | 3     | reserved | Hover prose — ASCII 32–126, no raw spaces, ≤1000 chars (the OSC 8 hover shows the raw URI, hence the byte rules) |
 | `keybind` | —     | carried  | Webapp-owned field; tooling preserves it verbatim, renderer ignores it |
 
 "Reserved" means the field is already legal v1 (the renderer honors `action`
 and `tooltip` on any button today); the phase number marks when the
 `add-widget` skill starts *accepting* it as an argument. Non-widget items
 (`divider`, `flex`, slotless buttons) are unaffected by this layer.
+
+### URI composition — the tip/do rule
+
+How a button's tooltip and action weld into one OSC 8 link URI. The renderer
+(`dashboardRow()`), the webapp, and `claudectl-handler.ps1` MUST agree:
+
+- `action` empty → `claudectl://tip/` + tooltip (hover-only, click is a no-op)
+- `tooltip` empty → the action, verbatim
+- both present → `claudectl://tip/` + tooltip + `/do/` + `encodeURIComponent(action)`
+  (the handler confirms, then dispatches through its normal allowlist)
 
 ## Glyph identity — an emoji representing itself (for now)
 
@@ -106,7 +120,7 @@ the line, `·` for empty, plus the width meter and a census of non-slot items:
 ```
  slot    1   2   3   4   5   6   7   8   9  10  11  12
  glyph   ·   ·  🔥   ·   ·   ·  📈   ·   ·   ·   ·   ·
- row width ≈ 9 / 78 cells ✓   (also on the row: 1 divider · 1 flex)
+ row width ≈ 9 / 78 cells ✓   (also on the row: 1 flex)
 ```
 
 ## Open questions (phase-1 answers, revisable)
