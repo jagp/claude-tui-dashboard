@@ -308,6 +308,62 @@ ok(
   "uris: printable ASCII only",
 );
 
+// --- widget-map.js (add-widget skill tooling) ----------------------------------
+// The slot tool and the renderer must speak the same wire format: wire widgets
+// with the tool, then render the same file through DASHBOARD_JSON. Contract
+// under test: docs/widget-schema.md (exit codes, no-clobber rule, soft cap).
+const WIDGET_TOOL = path.join(__dirname, "..", "skills", "add-widget", "scripts", "widget-map.js");
+const widgetFile = path.join(fakeHome, "widget-test.json");
+const widgetTool = (args) =>
+  spawnSync(process.execPath, [WIDGET_TOOL, ...args, "--file", widgetFile], { encoding: "utf8" });
+
+let w = widgetTool(["add", "3", "🔥"]);
+ok(w.status === 0, "widget: add to missing file exits 0", w.stderr);
+ok(w.stdout.includes("🔥"), "widget: legend shows the wired glyph");
+w = widgetTool(["add", "3", "📈"]);
+ok(w.status === 3, "widget: occupied slot exits 3 without --force");
+
+// Enrich the occupant, then force: overwrite must be glyph-only.
+let widgetDoc = JSON.parse(fs.readFileSync(widgetFile, "utf8"));
+widgetDoc.row[0].tooltip = "keep+me";
+widgetDoc.row[0].action = "claudectl://open/C:/x";
+fs.writeFileSync(widgetFile, JSON.stringify(widgetDoc));
+w = widgetTool(["add", "3", "📈", "--force"]);
+ok(w.status === 0, "widget: --force exits 0", w.stderr);
+widgetDoc = JSON.parse(fs.readFileSync(widgetFile, "utf8"));
+ok(
+  widgetDoc.row[0].glyph === "📈" &&
+    widgetDoc.row[0].tooltip === "keep+me" &&
+    widgetDoc.row[0].action === "claudectl://open/C:/x",
+  "widget: --force overwrites glyph only — tooltip/action survive",
+);
+
+widgetTool(["add", "1", "🧪"]);
+widgetDoc = JSON.parse(fs.readFileSync(widgetFile, "utf8"));
+ok(
+  widgetDoc.row[0].slot === 1 && widgetDoc.row[1].slot === 3,
+  "widget: stable-insert keeps slotted items ascending",
+);
+
+// End-to-end: the renderer draws the tool-written row as the last line.
+r = run(minimal, { DASHBOARD_JSON: widgetFile });
+const widgetRow = r.stdout.trim().split("\n").pop();
+ok(
+  widgetRow.includes("🧪") && widgetRow.includes("📈"),
+  "widget: renderer draws the tool-written row",
+  widgetRow,
+);
+
+// Soft cap warns but never refuses (78 cells; 40 emoji ≈ 80).
+w = widgetTool(["add", "5", "🔥".repeat(40)]);
+ok(w.status === 0 && w.stdout.includes("OVER SOFT CAP"), "widget: soft cap warns without refusing");
+
+// A corrupt file is refused untouched — exit 2, evidence preserved.
+fs.writeFileSync(widgetFile, "{nope");
+w = widgetTool(["map"]);
+ok(w.status === 2, "widget: corrupt JSON exits 2");
+ok(fs.readFileSync(widgetFile, "utf8") === "{nope", "widget: corrupt file left untouched");
+
 // --- wrap up -------------------------------------------------------------------
 try {
   fs.rmSync(fakeHome, { recursive: true, force: true });
