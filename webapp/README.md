@@ -60,6 +60,11 @@ State autosaves to `localStorage` on every change and restores on load.
   and treated as `side:"both"`.
 - `divider` — `glyph` is the divider character.
 - Import drops unknown fields and rejects unknown types.
+- **Widget layer (draft)** — the plugin's add-widget skill stamps buttons with
+  a numbered `slot` field (1–12); contract:
+  `plugins/cc-statusline-dashboard/docs/widget-schema.md`. Import currently
+  drops `slot`, so a pull-then-push cycle strips it — preserving it (the way
+  `keybind` already survives) is a next-phase task below.
 
 ### Tooltip constraints (contract)
 
@@ -109,6 +114,8 @@ The visual layer is deliberately neutral and fully overrideable:
 
 ## Next phase
 
+- Preserve the widget layer's `slot` field on import (see "The exported
+  schema" above) so skill-wired widgets survive a webapp round-trip.
 - Context-aware keybind hovers (keybind is stored/exported but ignored by the
   statusline today).
 - GitHub login + remote state sync via the `StateStore` stubs.
