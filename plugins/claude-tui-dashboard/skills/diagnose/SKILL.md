@@ -1,6 +1,6 @@
 ---
 name: diagnose
-description: This skill should be used when statusline links are broken - clicks do nothing, open Quick Open / workspace search instead of Explorer, open the wrong file, or hovering shows no tooltip - or when verifying a fresh install on a new machine or terminal. Also runs as /cc-statusline-dashboard:diagnose.
+description: This skill should be used when statusline links are broken - clicks do nothing, open Quick Open / workspace search instead of Explorer, open the wrong file, or hovering shows no tooltip - or when verifying a fresh install on a new machine or terminal. Also runs as /claude-tui-dashboard:diagnose.
 allowed-tools: Read, Bash, Grep, WebFetch, AskUserQuestion
 ---
 

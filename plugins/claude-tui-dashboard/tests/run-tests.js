@@ -12,18 +12,18 @@ const path = require("path");
 
 const SCRIPT = path.join(__dirname, "..", "statusline", "statusline.js");
 const FIX = path.join(__dirname, "fixtures");
-const fakeHome = fs.mkdtempSync(path.join(os.tmpdir(), "cc-statusline-test-"));
+const fakeHome = fs.mkdtempSync(path.join(os.tmpdir(), "claude-tui-dashboard-test-"));
 
 function run(input, extraEnv) {
   return spawnSync(process.execPath, [SCRIPT], {
     input,
     encoding: "utf8",
-    // CC_STATUSLINE_NO_SPAWN: never let a test fire the detached CI worker.
+    // CLAUDE_TUI_DASHBOARD_NO_SPAWN: never let a test fire the detached CI worker.
     env: {
       ...process.env,
       USERPROFILE: fakeHome,
       HOME: fakeHome,
-      CC_STATUSLINE_NO_SPAWN: "1",
+      CLAUDE_TUI_DASHBOARD_NO_SPAWN: "1",
       ...extraEnv,
     },
   });
@@ -262,7 +262,7 @@ r = run(full);
 ok(r.stdout.includes("🚦"), "ci: traffic light rendered from cache");
 ok(r.stdout.includes("\x1b[31m2/3"), "ci: red rollup when a check fails");
 ok(
-  r.stdout.includes("https://github.com/jared/claude-dashboard/pull/12/checks"),
+  r.stdout.includes("https://github.com/jared/claude-tui-dashboard/pull/12/checks"),
   "ci: click opens checks page",
 );
 
@@ -286,8 +286,8 @@ ok(r.stdout.includes("👤"), "account: chip rendered");
 ok(r.stdout.includes("claudectl://tip/account+jared@example.com+Acme"), "account: identity tooltip");
 
 // Pet kill switch for minimalists.
-r = run(full, { CC_STATUSLINE_NO_PET: "1" });
-ok(!r.stdout.includes("🐉"), "pet: hidden under CC_STATUSLINE_NO_PET");
+r = run(full, { CLAUDE_TUI_DASHBOARD_NO_PET: "1" });
+ok(!r.stdout.includes("🐉"), "pet: hidden under CLAUDE_TUI_DASHBOARD_NO_PET");
 
 // --- tooltip physics: no whitespace in ANY emitted URI -------------------------
 // Swept over the everything-on payload: dashboard row + warm cache + added dirs

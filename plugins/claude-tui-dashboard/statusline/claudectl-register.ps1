@@ -37,7 +37,7 @@ Set-ItemProperty -Path "$key\shell\open\command" -Name '(default)' -Value ('"{0}
 $un = 'HKCU:\Software\Microsoft\Windows\CurrentVersion\Uninstall\claudectl'
 New-Item -Path $un -Force | Out-Null
 Set-ItemProperty -Path $un -Name 'DisplayName' -Value 'Claude Control Protocol (claudectl)'
-Set-ItemProperty -Path $un -Name 'Publisher' -Value 'claude-dashboard (local)'
+Set-ItemProperty -Path $un -Name 'Publisher' -Value 'claude-tui-dashboard (local)'
 Set-ItemProperty -Path $un -Name 'DisplayVersion' -Value '1.0'
 Set-ItemProperty -Path $un -Name 'InstallLocation' -Value $dest
 Set-ItemProperty -Path $un -Name 'UninstallString' -Value ('"{0}" -NoProfile -ExecutionPolicy Bypass -File "{1}"' -f (Join-Path $env:SystemRoot 'System32\WindowsPowerShell\v1.0\powershell.exe'), (Join-Path $dest 'claudectl-unregister.ps1'))

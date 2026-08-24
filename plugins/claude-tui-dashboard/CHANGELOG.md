@@ -1,6 +1,26 @@
 # Changelog
 
-All notable changes to the cc-statusline-dashboard plugin.
+All notable changes to the claude-tui-dashboard plugin.
+
+## Unreleased — rebrand to claude-tui-dashboard (2026-08-24)
+
+Renamed the plugin and its marketplace from `cc-statusline-dashboard` and
+`claude-dashboard` to a single name, `claude-tui-dashboard`. Historical
+entries below keep the command names they shipped under.
+
+- Plugin directory `plugins/cc-statusline-dashboard/` →
+  `plugins/claude-tui-dashboard/`
+- Marketplace renamed `claude-dashboard` → `claude-tui-dashboard`; the
+  install line is now
+  `/plugin install claude-tui-dashboard@claude-tui-dashboard`
+- Skills are invoked as `/claude-tui-dashboard:activate-dashboard`,
+  `/claude-tui-dashboard:deactivate-dashboard`,
+  `/claude-tui-dashboard:diagnose`
+- **Breaking** — kill-switch env vars renamed: `CC_STATUSLINE_NO_PET` →
+  `CLAUDE_TUI_DASHBOARD_NO_PET`, `CC_STATUSLINE_NO_SPAWN` →
+  `CLAUDE_TUI_DASHBOARD_NO_SPAWN`. The old names are no longer read.
+- Windows uninstall-entry Publisher string is now `claude-tui-dashboard
+  (local)`
 
 ## Unreleased — goal-state density (2026-08-04)
 
