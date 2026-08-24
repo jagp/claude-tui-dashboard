@@ -1,8 +1,8 @@
 {
   "model": { "id": "claude-fable-5[1m]", "display_name": "Fable 5" },
   "workspace": {
-    "current_dir": "C:\\Users\\jared\\Projects\\claude-dashboard",
-    "project_dir": "C:\\Users\\jared\\Projects\\claude-dashboard"
+    "current_dir": "C:\\Users\\jared\\Projects\\claude-tui-dashboard",
+    "project_dir": "C:\\Users\\jared\\Projects\\claude-tui-dashboard"
   },
   "cost": {
     "total_cost_usd": 3.42,
@@ -34,21 +34,21 @@
   },
   "session_id": "0f8a3c21-77de-4b52-9c40-1b2f3d4e5a6b",
   "session_name": "dashboard-possibility",
-  "transcript_path": "C:\\Users\\jared\\.claude\\projects\\C--Users-jared-Projects-claude-dashboard\\transcript.jsonl",
+  "transcript_path": "C:\\Users\\jared\\.claude\\projects\\C--Users-jared-Projects-claude-tui-dashboard\\transcript.jsonl",
   "version": "2.0.32",
   "output_style": { "name": "explanatory" },
   "vim": { "mode": "normal" },
   "agent": { "name": "reviewer" },
   "pr": {
     "number": 12,
-    "url": "https://github.com/jared/claude-dashboard/pull/12",
+    "url": "https://github.com/jared/claude-tui-dashboard/pull/12",
     "review_state": "approved"
   },
   "worktree": {
-    "path": "C:\\Users\\jared\\Projects\\claude-dashboard\\.claude\\worktrees\\dashboard-possibility-space",
+    "path": "C:\\Users\\jared\\Projects\\claude-tui-dashboard\\.claude\\worktrees\\dashboard-possibility-space",
     "branch": "feature/dashboard-possibility-space",
     "name": "dashboard-possibility-space",
     "original_branch": "develop",
-    "original_cwd": "C:\\Users\\jared\\Projects\\claude-dashboard"
+    "original_cwd": "C:\\Users\\jared\\Projects\\claude-tui-dashboard"
   }
 }

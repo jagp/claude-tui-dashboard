@@ -42,8 +42,8 @@
 // files. On macOS/Linux no such hijack exists, so plain file:// links are
 // emitted and the OS file manager handles them.
 //
-// Kill switches (env): CC_STATUSLINE_NO_SPAWN=1 disables the detached CI
-// refresh child; CC_STATUSLINE_NO_PET=1 hides the session buddy.
+// Kill switches (env): CLAUDE_TUI_DASHBOARD_NO_SPAWN=1 disables the detached CI
+// refresh child; CLAUDE_TUI_DASHBOARD_NO_PET=1 hides the session buddy.
 
 const fs = require("fs");
 const os = require("os");
@@ -582,10 +582,10 @@ function accountChip() {
 // and whose *mood* reads the same vitals the meters show (context pressure,
 // rate-limit runway). Pure glyph state-machine, zero cost, and honest: a
 // frazzled dragon means your context and quota really are under pressure.
-// CC_STATUSLINE_NO_PET=1 for minimalists.
+// CLAUDE_TUI_DASHBOARD_NO_PET=1 for minimalists.
 function petSegment(d) {
   try {
-    if (process.env.CC_STATUSLINE_NO_PET) return null;
+    if (process.env.CLAUDE_TUI_DASHBOARD_NO_PET) return null;
     const cost = d?.cost || {};
     const cw = d?.context_window || {};
     const lines = (Number(cost.total_lines_added) || 0) + (Number(cost.total_lines_removed) || 0);
@@ -873,7 +873,7 @@ function ciSegment(d, cwd) {
     const cached = readState(key);
     const ttl = !cached ? 0 : cached.checks ? (cached.checks.pending > 0 ? 90000 : 300000) : 900000;
     const fresh = cached && Date.now() - (cached.at || 0) < ttl;
-    if (!fresh && !process.env.CC_STATUSLINE_NO_SPAWN) {
+    if (!fresh && !process.env.CLAUDE_TUI_DASHBOARD_NO_SPAWN) {
       const lock = path.join(stateDir(), key + ".lock");
       let locked = false;
       try {

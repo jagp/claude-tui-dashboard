@@ -1,4 +1,4 @@
-# cc-statusline-dashboard
+# claude-tui-dashboard
 
 A Claude Code statusline where everything you'd want to jump to is a
 **clickable link**, every glyph is a **gauge wearing an emoji face** (hover it
@@ -33,7 +33,7 @@ needed.
 | `+120-30` | Lines added/removed this session (hidden at zero) |
 | `NORMAL` 💭 ⚡ 🤖 🎨 📂+n | Mode chips, smart-hidden when absent: vim mode (INSERT green / VISUAL magenta), thinking, fast mode, agent, output style, added workspace dirs |
 | 👤 | Account chip — hover shows which account this terminal burns quota on |
-| 🥚🐣🐥🦕🐉 | Session buddy: grows with lines + minutes + tokens; hover shows its level, kaomoji mood (reads real context/quota pressure), and vitals. `CC_STATUSLINE_NO_PET=1` hides it |
+| 🥚🐣🐥🦕🐉 | Session buddy: grows with lines + minutes + tokens; hover shows its level, kaomoji mood (reads real context/quota pressure), and vitals. `CLAUDE_TUI_DASHBOARD_NO_PET=1` hides it |
 | `14:32:07` | Staleness clock: when this render happened; turns yellow with a `*` when the payload has been frozen >2.5 min (long turn) |
 
 **Line 2 — navigation (every item is an OSC 8 hyperlink; Ctrl/Alt+click)**
@@ -59,7 +59,7 @@ whitespace-bearing URI to the word "Link"; Windows Terminal shows the first
 tip + `/do/` composites (like the session chip), which confirm before
 re-dispatching through the same allowlist. Sensors persist tiny caches under
 `~/.claude/dashboard-state/`; add `"refreshInterval"` to your `statusLine`
-setting so countdowns tick while you're idle. `CC_STATUSLINE_NO_SPAWN=1`
+setting so countdowns tick while you're idle. `CLAUDE_TUI_DASHBOARD_NO_SPAWN=1`
 disables the detached CI refresh child.
 
 ## Why the Windows `claudectl://` protocol
@@ -88,8 +88,8 @@ by any web page and probing a UNC path would auto-send NTLM credentials.
 
 ```
 /plugin marketplace add <path-or-git-url-of-this-repo>
-/plugin install cc-statusline-dashboard@claude-dashboard
-/cc-statusline-dashboard:install
+/plugin install claude-tui-dashboard@claude-tui-dashboard
+/claude-tui-dashboard:install
 ```
 
 The install skill:
@@ -123,18 +123,18 @@ On Windows, additionally run
 ## Uninstall
 
 ```
-/cc-statusline-dashboard:uninstall
+/claude-tui-dashboard:uninstall
 ```
 
 Restores the statusline and `statusLine` setting that were live before
 install, removes the protocol registration and deployed files. On Windows,
 **Settings > Apps > "Claude Control Protocol (claudectl)" > Uninstall** does
-the same. Then `/plugin uninstall cc-statusline-dashboard` removes the plugin.
+the same. Then `/plugin uninstall claude-tui-dashboard` removes the plugin.
 
 ## Troubleshooting
 
 ```
-/cc-statusline-dashboard:diagnose
+/claude-tui-dashboard:diagnose
 ```
 
 Links dead? Clicks landing in Quick Open / workspace search? Five independent
@@ -160,7 +160,7 @@ statusline/claudectl-register.ps1  Windows protocol installer (idempotent, HKCU)
 statusline/claudectl-handler.ps1   protocol handler — read-only, Explorer-only
 statusline/claudectl-unregister.ps1  full reversal incl. statusline restore
 statusline/claudectl.vbs           windowless launcher (no console flash)
-skills/install, skills/uninstall   the /cc-statusline-dashboard:* skills
+skills/install, skills/uninstall   the /claude-tui-dashboard:* skills
 skills/diagnose                    gate-by-gate link troubleshooting
 docs/customizing-glyphs.md         alternative glyph ramps + caveats
 ```

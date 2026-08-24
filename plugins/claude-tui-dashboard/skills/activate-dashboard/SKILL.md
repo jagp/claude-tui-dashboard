@@ -1,6 +1,6 @@
 ---
 name: activate-dashboard
-description: This skill should be used when the user asks to "activate the dashboard", "activate dashboard", "install the clickable statusline", "set up the statusline", "register claudectl", or runs /cc-statusline-dashboard:activate-dashboard. Deploys the dashboard statusline into ~/.claude/statusline.js, wires settings.json, and (on Windows) registers the claudectl:// protocol. With a JSON object argument it only validates and echoes the dashboard config — no deployment.
+description: This skill should be used when the user asks to "activate the dashboard", "activate dashboard", "install the clickable statusline", "set up the statusline", "register claudectl", or runs /claude-tui-dashboard:activate-dashboard. Deploys the dashboard statusline into ~/.claude/statusline.js, wires settings.json, and (on Windows) registers the claudectl:// protocol. With a JSON object argument it only validates and echoes the dashboard config — no deployment.
 allowed-tools: Read, Write, Edit, Bash, AskUserQuestion
 ---
 
@@ -10,7 +10,7 @@ Deploy the plugin's statusline to `~/.claude/statusline.js`, point the user's
 `statusLine` setting at it, and on Windows register the `claudectl://` protocol
 so local-path links open Windows Explorer instead of being hijacked by VS
 Code's terminal. All steps are idempotent and reversible via
-`/cc-statusline-dashboard:deactivate-dashboard`.
+`/claude-tui-dashboard:deactivate-dashboard`.
 
 ## Step 0 — Refuse to run outside an active plugin install
 
@@ -19,17 +19,17 @@ Claude Code's plugin system — never from a bare repo checkout.
 
 Resolve this skill's base directory and require that it lives under the
 user's plugin cache (a path containing `.claude/plugins/`, e.g.
-`~/.claude/plugins/cache/<marketplace>/cc-statusline-dashboard/...`). If it
+`~/.claude/plugins/cache/<marketplace>/claude-tui-dashboard/...`). If it
 resolves anywhere else (a git checkout, a worktree, a downloaded folder),
 STOP without deploying anything and tell the user to install the plugin
 first:
 
 ```
-/plugin marketplace add <path-or-repo-of-the-claude-dashboard-marketplace>
-/plugin install cc-statusline-dashboard@claude-dashboard
+/plugin marketplace add <path-or-repo-of-the-claude-tui-dashboard-marketplace>
+/plugin install claude-tui-dashboard@claude-tui-dashboard
 ```
 
-Then re-run `/cc-statusline-dashboard:activate-dashboard`.
+Then re-run `/claude-tui-dashboard:activate-dashboard`.
 
 Below, `${CLAUDE_PLUGIN_ROOT}` means the plugin root resolved from this
 skill's base directory (two levels above `skills/activate-dashboard/`) —
@@ -70,7 +70,7 @@ then deploy); today it is echo-only by design.
 ## Step 1 — Preserve what the user already has
 
 1. Read `~/.claude/settings.json`. If it contains a `statusLine` key, save the
-   exact current value to `~/.claude/cc-statusline-dashboard.prev-settings.json`
+   exact current value to `~/.claude/claude-tui-dashboard.prev-settings.json`
    (create the file with the JSON value; skip if that backup file already
    exists — never overwrite an existing backup on re-activation).
 2. **Windows:** run the register script BEFORE copying the statusline — it
@@ -135,5 +135,5 @@ Expect `action=open path=C:\Users dir=True file=False`.
 Tell the user: the dashboard is active on the next statusline refresh (or
 restart of Claude Code); links are Ctrl/Alt+click in hyperlink-aware terminals
 (Windows Terminal, VS Code, iTerm2, WezTerm); deactivate via
-`/cc-statusline-dashboard:deactivate-dashboard` or (Windows) Settings > Apps >
+`/claude-tui-dashboard:deactivate-dashboard` or (Windows) Settings > Apps >
 "Claude Control Protocol (claudectl)".

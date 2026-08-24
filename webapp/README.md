@@ -1,7 +1,7 @@
 # Actionmoji — stage · commit · push your statusline
 
 A WYSIWYG bench for building **actionmoji**: emoji/glyph buttons for the
-cc-statusline-dashboard extra row, each carrying a hover tooltip and an optional
+claude-tui-dashboard extra row, each carrying a hover tooltip and an optional
 `claudectl://` action, welded into one OSC 8 hyperlink. The whole UI speaks git
 as a metaphor: the reservoir is your object store, staging is the index, the
 mock statusline bar is HEAD, export is `git push`, import is `git pull`.
