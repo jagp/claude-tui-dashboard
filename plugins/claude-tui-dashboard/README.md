@@ -151,10 +151,10 @@ the web configurator (`webapp/`) exports. Wire a glyph into one of its twelve
 numbered slots straight from a session:
 
 ```
-/cc-statusline-dashboard:add-widget 3 🔥
+/claude-tui-dashboard:add-widget 3 🔥
 ```
 
-Bare `/cc-statusline-dashboard:add-widget` prints the slot map/legend. The
+Bare `/claude-tui-dashboard:add-widget` prints the slot map/legend. The
 skill warns past a 78-cell soft cap (the row may wrap), confirms before
 overwriting an occupied slot, and speaks the shared draft contract in
 `docs/widget-schema.md` (phase 1: glyph + slot; click actions and hover

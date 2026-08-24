@@ -1,6 +1,6 @@
 ---
 name: add-widget
-description: This skill should be used when the user asks to "add a widget", "add a widget to the statusline", "put 🔥 in slot 3", "wire up a glyph as a widget", "add an actionmoji", "show the widget map", "show the slot legend", or runs /cc-statusline-dashboard:add-widget. Wires a glyph into a numbered dashboard-row slot and prints the slot map with the 78-cell soft-cap guardrail.
+description: This skill should be used when the user asks to "add a widget", "add a widget to the statusline", "put 🔥 in slot 3", "wire up a glyph as a widget", "add an actionmoji", "show the widget map", "show the slot legend", or runs /claude-tui-dashboard:add-widget. Wires a glyph into a numbered dashboard-row slot and prints the slot map with the 78-cell soft-cap guardrail.
 allowed-tools: Read, Bash, AskUserQuestion
 ---
 
@@ -20,7 +20,7 @@ literally in every command, and keep the quotes (the path may contain spaces).
 
 ## Argument grammar (phased)
 
-`/cc-statusline-dashboard:add-widget [<slot>] [<glyph>]`
+`/claude-tui-dashboard:add-widget [<slot>] [<glyph>]`
 
 | Argument          | Position | Phase        | Meaning |
 |-------------------|----------|--------------|---------|
@@ -106,7 +106,7 @@ echo '{"model":{"id":"claude-opus-5"}}' | node ~/.claude/statusline.js
 ```
 
 If the glyph is absent from that last line, the deployed statusline likely
-predates the dashboard row — redeploy via `/cc-statusline-dashboard:install`
+predates the dashboard row — redeploy via `/claude-tui-dashboard:install`
 rather than debugging the widget file (the tool already proved the wire is
 good). If `~/.claude/statusline.js` does not exist at all, point at the
 install skill instead of debugging render output.

@@ -62,7 +62,7 @@ State autosaves to `localStorage` on every change and restores on load.
 - Import drops unknown fields and rejects unknown types.
 - **Widget layer (draft)** — the plugin's add-widget skill stamps buttons with
   a numbered `slot` field (1–12); contract:
-  `plugins/cc-statusline-dashboard/docs/widget-schema.md`. Import currently
+  `plugins/claude-tui-dashboard/docs/widget-schema.md`. Import currently
   drops `slot`, so a pull-then-push cycle strips it — preserving it (the way
   `keybind` already survives) is a next-phase task below.
 
