@@ -11,7 +11,7 @@
     {
       "name": "cc-statusline-dashboard",
       "source": "./plugins/cc-statusline-dashboard",
-      "description": "Two-line statusline (plus an optional widget row): medal model glyphs, effort dial, rate-limit windows, exact token count, and clickable emoji links — with a Windows claudectl:// protocol so links open Explorer even from VS Code's terminal.",
+      "description": "Upgrade your statusline into a dashboard, a configurable, command center capable of rendering Claude internals in a novel widgetized 'action glyphs' system.",
       "version": "1.0.0",
       "author": {
         "name": "Jared Parmenter"
@@ -23,9 +23,8 @@
         "osc8",
         "hyperlinks",
         "rate-limits",
-        "tokens",
-        "windows",
-        "explorer"
+        "buttons",
+        "widgets"
       ]
     }
   ]
