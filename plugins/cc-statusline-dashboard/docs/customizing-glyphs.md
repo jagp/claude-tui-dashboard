@@ -19,10 +19,10 @@ sit adjacent on line 1).
 ## In use / history
 
 | Badge  | Status   | low / haiku | medium / sonnet | high / opus | xhigh / fable | max | fallback |
-|--------|----------|:--:|:--:|:--:|:--:|:--:|:--:|
-| Effort | **live** | ○ | ◐ | ● | ◉ | ★ | · |
-| Model  | **live** | 🥉 | 🥈 | 🥇 | 🏆 | — | 🎖️ |
-| Model  | retired  | ▂ | ▄ | ▆ | █ | — | ▁ |
+| ------ | -------- | :---------: | :-------------: | :---------: | :-----------: | :-: | :------: |
+| Effort | **live** |      ○      |        ◐        |      ●      |       ◉       |  ★  |    ·     |
+| Model  | **live** |     🥉      |       🥈        |     🥇      |      🏆       |  —  |    🎖️    |
+| Model  | retired  |      ▂      |        ▄        |      ▆      |       █       |  —  |    ▁     |
 
 Effort is currently a **text-glyph circle ramp** (empty → half → full → double →
 star), mirroring the model-picker UI. Model moved from a block-height ramp
@@ -34,28 +34,28 @@ star), mirroring the model-picker UI. Model moved from a block-height ramp
 
 Ordered `low → medium → high → xhigh → max`.
 
-| Theme | low | medium | high | xhigh | max | The idea |
-|-------|:--:|:--:|:--:|:--:|:--:|----------|
-| **Psychology** (cognitive load) | 😴 | 🙂 | 🤔 | 🧐 | 🤯 | asleep → relaxed → pondering → scrutinizing → mind‑blown. On‑the‑nose for "how hard is it thinking." |
-| **Caffeine** | 🥛 | 🍵 | ☕ | 🥤 | ⚡ | milk → tea → coffee → energy drink → jolt. Effort = stimulant dose. |
-| **Spiciness / heat** | 🧊 | 🌡️ | 🌶️ | 🔥 | 🌋 | ice → warm → chili → fire → volcano. Effort = temperature. |
-| **Age / wisdom** | 👶 | 🧒 | 🧑 | 🧓 | 🧙 | baby → child → adult → elder → sage. Effort = accumulated mastery. |
-| **Robotic escalation** | 🔩 | 🤖 | 🦾 | 🧠 | 🛸 | bolt → robot → bionic → cognition → transcendent AI. |
-| **Love / warmth** | 🤍 | 💛 | 🧡 | ❤️ | 💖 | color‑temperature ramp of hearts, ending sparkling. (`❤️‍🔥` burning‑heart is a punchier max but is a ZWJ sequence — see caveats.) |
-| **Weather / storm energy** | 🌤️ | ⛅ | 🌧️ | ⛈️ | 🌪️ | fair → cloudy → rain → thunderstorm → tornado. Effort = atmospheric energy. |
-| **Velocity / propulsion** | 🚶 | 🚲 | 🚗 | ✈️ | 🚀 | walk → bike → car → plane → rocket. Effort = speed/power. |
-| **Moon (waxing)** | 🌑 | 🌒 | 🌓 | 🌔 | 🌕 | clean 5‑step fill — but geometrically the *same family* as the live circle ramp, so low novelty. Listed for completeness. |
+| Theme                           | low | medium | high | xhigh | max | The idea                                                                                                                        |
+| ------------------------------- | :-: | :----: | :--: | :---: | :-: | ------------------------------------------------------------------------------------------------------------------------------- |
+| **Psychology** (cognitive load) | 😴  |   🙂   |  🤔  |  🧐   | 🤯  | asleep → relaxed → pondering → scrutinizing → mind‑blown. On‑the‑nose for "how hard is it thinking."                            |
+| **Caffeine**                    | 🥛  |   🍵   |  ☕  |  🥤   | ⚡  | milk → tea → coffee → energy drink → jolt. Effort = stimulant dose.                                                             |
+| **Spiciness / heat**            | 🧊  |   🌡️   |  🌶️  |  🔥   | 🌋  | ice → warm → chili → fire → volcano. Effort = temperature.                                                                      |
+| **Age / wisdom**                | 👶  |   🧒   |  🧑  |  🧓   | 🧙  | baby → child → adult → elder → sage. Effort = accumulated mastery.                                                              |
+| **Robotic escalation**          | 🔩  |   🤖   |  🦾  |  🧠   | 🛸  | bolt → robot → bionic → cognition → transcendent AI.                                                                            |
+| **Love / warmth**               | 🤍  |   💛   |  🧡  |  ❤️   | 💖  | color‑temperature ramp of hearts, ending sparkling. (`❤️‍🔥` burning‑heart is a punchier max but is a ZWJ sequence — see caveats.) |
+| **Weather / storm energy**      | 🌤️  |   ⛅   |  🌧️  |  ⛈️   | 🌪️  | fair → cloudy → rain → thunderstorm → tornado. Effort = atmospheric energy.                                                     |
+| **Velocity / propulsion**       | 🚶  |   🚲   |  🚗  |  ✈️   | 🚀  | walk → bike → car → plane → rocket. Effort = speed/power.                                                                       |
+| **Moon (waxing)**               | 🌑  |   🌒   |  🌓  |  🌔   | 🌕  | clean 5‑step fill — but geometrically the _same family_ as the live circle ramp, so low novelty. Listed for completeness.       |
 
 ### Text-glyph ramps (width‑safe, no emoji rendering risk)
 
 Same monospace family as the live effort scale — safest across terminals.
 
-| Theme | low | medium | high | xhigh | max | The idea |
-|-------|:--:|:--:|:--:|:--:|:--:|----------|
-| **Circles** (live) | ○ | ◐ | ● | ◉ | ★ | empty → half → full → double → star. |
-| **Bars / height** | ▁ | ▃ | ▅ | ▇ | █ | rising block — reads as a gauge. |
-| **Braille fill** | ⠁ | ⠃ | ⠇ | ⠧ | ⠿ | dots filling a cell, densest = max. |
-| **Shade blocks** | ░ | ▒ | ▓ | █ | ⬛ | increasing ink density. |
+| Theme              | low | medium | high | xhigh | max | The idea                             |
+| ------------------ | :-: | :----: | :--: | :---: | :-: | ------------------------------------ |
+| **Circles** (live) |  ○  |   ◐    |  ●   |   ◉   |  ★  | empty → half → full → double → star. |
+| **Bars / height**  |  ▁  |   ▃    |  ▅   |   ▇   |  █  | rising block — reads as a gauge.     |
+| **Braille fill**   |  ⠁  |   ⠃    |  ⠇   |   ⠧   |  ⠿  | dots filling a cell, densest = max.  |
+| **Shade blocks**   |  ░  |   ▒    |  ▓   |   █   | ⬛  | increasing ink density.              |
 
 ---
 
@@ -63,14 +63,16 @@ Same monospace family as the live effort scale — safest across terminals.
 
 Ordered `haiku → sonnet → opus → fable`. (The live scale is medals.)
 
-| Theme | haiku | sonnet | opus | fable | The idea |
-|-------|:--:|:--:|:--:|:--:|----------|
-| **Medals** (live) | 🥉 | 🥈 | 🥇 | 🏆 | bronze → silver → gold → trophy; a self‑ordering ranking. |
-| **Creature size** | 🐁 | 🐇 | 🦊 | 🐘 | bigger animal = more capable model. |
-| **Literary form** (plays on the *names*) | 🍃 | 📜 | 🎼 | 📖 | haiku (tiny poem) → sonnet (scroll) → opus (grand score) → fable (tale). Semantic to what each name *means*. |
-| **Gemstones** | 🪨 | 🔶 | 🔷 | 💎 | rock → amber → sapphire → diamond; increasing value. |
-| **Celestial** | ✨ | ⭐ | 🌟 | ☀️ | spark → star → glowing star → sun; increasing luminosity. |
+| Theme                                    | haiku | sonnet | opus | fable | The idea                                                                                                     |
+| ---------------------------------------- | :---: | :----: | :--: | :---: | ------------------------------------------------------------------------------------------------------------ |
+| **Medals** (live)                        |  🥉   |   🥈   |  🥇  |  🏆   | bronze → silver → gold → trophy; a self‑ordering ranking.                                                    |
+| **Creature size**                        |  🐁   |   🐇   |  🦊  |  🐘   | bigger animal = more capable model.                                                                          |
+| **Literary form** (plays on the _names_) |  🍃   |   📜   |  🎼  |  📖   | haiku (tiny poem) → sonnet (scroll) → opus (grand score) → fable (tale). Semantic to what each name _means_. |
+| **Gemstones**                            |  🪨   |   🔶   |  🔷  |  💎   | rock → amber → sapphire → diamond; increasing value.                                                         |
+| **Celestial**                            |  ✨   |   ⭐   |  🌟  |  ☀️   | spark → star → glowing star → sun; increasing luminosity.                                                    |
+| 🦐🦀🐙🦑                                 |
 
+🌡️
 ---
 
 ## Rendering caveats
@@ -97,7 +99,13 @@ In `statusline.js`:
 
 ```js
 // Effort — pick a row above; 5 stops, monotonic.
-const EFFORT_ICON = { low: "😴", medium: "🙂", high: "🤔", xhigh: "🧐", max: "🤯" };
+const EFFORT_ICON = {
+  low: "😴",
+  medium: "🙂",
+  high: "🤔",
+  xhigh: "🧐",
+  max: "🤯",
+};
 const EFFORT_FALLBACK = "·";
 ```
 
