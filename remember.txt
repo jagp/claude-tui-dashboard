@@ -1,0 +1,12 @@
+ the steps we took in the other session, namely setting disableAGentsView to true did successfully change the home screen view and also the details about what owns the process ie daemon vs terminal.  I want to add some diagnostic info about whats been going oon to the claude-dashboard displauys.  Pleasecreate a new function which adds a widget to our statusline config relating to what process owns the session the stratusline is being rendered in, whether the session is background or interactive, and:
+
+- who owns the session process: a daemon (show its pid and the cc-daemon-<id> pipe it manages the session through) or a terminal (show which shell, inside which terminal app)
+- whether a real console is attached, or the session is driven through a manufactured pty
+- how it was launched: the entrypoint (cli / vscode / etc.) and the actual launcher - the VS Code "Open in Terminal" button vs a shell prompt vs explorer
+- whether the IDE bridge is still live or has detached, i.e. whether the editor and the session are still talking to each other
+- whether this session was rehomed: started under one owner and later resumed under another (a --resume running on a daemon-managed pty is the tell)
+- for daemon-owned sessions: the daemon's --origin (transient vs persistent) and its --spawned-by payload (label, cwd, pid) - i.e. which session asked for that daemon to exist in the first place
+- how many sibling sessions the same daemon is currently holding, so it is visible when one daemon is fronting several sessions at once
+- the pty pipe name binding this session to its daemon, so a session in the bar can be matched against a process in Task Manager
+- the transcript / worktree the session is bound to, so a resumed session shows where it came from
+- what actually dies if the terminal tab is closed - the consequence of ownership, which is what ownership really means in practice
