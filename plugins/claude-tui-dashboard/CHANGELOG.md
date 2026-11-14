@@ -4,6 +4,11 @@ All notable changes to the claude-tui-dashboard plugin.
 
 ## Unreleased — fixes
 
+- **Session-status widgets moved to line 2.** Cache warmth (🔥/🧊), the
+  ±lines churn badge, mode chips, 👤 account, the buddy and the render clock
+  now trail line 2, after the [📒] [📜] [🌳] buttons. Line 1 ends on the
+  session chip.
+
 - **Merged/closed PRs hide from line 2.** Claude Code can keep a session's
   `pr` field pinned to a long-merged PR (anthropics/claude-code#100360). The
   `--ci-refresh` child now also runs `gh pr view --json state`, and a
