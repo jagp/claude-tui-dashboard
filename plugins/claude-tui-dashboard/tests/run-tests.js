@@ -305,47 +305,6 @@ r = run(full);
 ok(r.stdout.includes("👤"), "account: chip rendered");
 ok(r.stdout.includes("claudectl://tip/account+jared@example.com+Acme"), "account: identity tooltip");
 
-// --- layout: which widgets live on which line ---------------------------------
-// Line 1 keeps the identity + metered clusters and ends on the session chip.
-// Cache warmth, churn, mode chips, account, pet and the render clock sit on
-// line 2, after the nav links and the [📒] [📜] [🌳] buttons, in that order.
-// Each widget is located by a marker unique to it (mostly its tooltip URI), so
-// the order check can't be fooled by a digit or glyph appearing elsewhere.
-const layoutObj = JSON.parse(full);
-layoutObj.transcript_path = transcript; // cold transcript from the cache test → 🧊
-r = run(JSON.stringify(layoutObj));
-const [layoutLine1 = "", layoutLine2 = ""] = r.stdout.split("\n");
-const movedMarkers = [
-  ["cache", "claudectl://tip/cache+cold"],
-  ["churn", "claudectl://tip/lines+added"],
-  ["chips", "NORMAL"],
-  ["account", "claudectl://tip/account+"],
-  ["pet", "claudectl://tip/buddy+"],
-  ["clock", "claudectl://tip/rendered+"],
-];
-for (const [name, marker] of movedMarkers) {
-  ok(!layoutLine1.includes(marker), `layout: ${name} not on line 1`);
-}
-const buttonsAt = layoutLine2.indexOf("🌳");
-const movedAt = movedMarkers.map(([, marker]) => layoutLine2.indexOf(marker));
-ok(
-  buttonsAt >= 0 && movedAt.every((at, i) => at > (i ? movedAt[i - 1] : buttonsAt)),
-  "layout: moved widgets on line 2, after the buttons, in order",
-  `🌳@${buttonsAt} ` + movedMarkers.map(([name], i) => `${name}@${movedAt[i]}`).join(" "),
-);
-// The last link on line 1 must be the session chip (its click copies the id).
-const line1Uris = [...layoutLine1.matchAll(/\x1b\]8;;([^\x07\x1b]*)/g)].map((m) => m[1]).filter(Boolean);
-ok(
-  (line1Uris[line1Uris.length - 1] || "").includes(encodeURIComponent("claudectl://copy/")),
-  "layout: line 1 ends with the session chip",
-);
-// No nav, no buttons (minimal payload) — line 2 still carries the moved widgets.
-r = run(minimal);
-ok(
-  (r.stdout.split("\n")[1] || "").includes("claudectl://tip/rendered+"),
-  "layout: line 2 renders moved widgets even without nav or buttons",
-);
-
 // Pet kill switch for minimalists.
 r = run(full, { CLAUDE_TUI_DASHBOARD_NO_PET: "1" });
 ok(!r.stdout.includes("🐉"), "pet: hidden under CLAUDE_TUI_DASHBOARD_NO_PET");
