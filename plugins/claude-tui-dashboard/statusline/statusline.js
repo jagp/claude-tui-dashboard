@@ -52,39 +52,48 @@ const cp = require("child_process");
 
 // --- CI refresh mode ---------------------------------------------------------
 
-// `node statusline.js --ci-refresh <cwd> <pr#> <cacheFile> <lockFile>` is the
-// stale-while-revalidate worker: the render path never waits on `gh` — it
+// `node statusline.js --ci-refresh <cwd> <pr ref> <cacheFile> <lockFile>` is
+// the stale-while-revalidate worker: the render path never waits on `gh` — it
 // spawns this detached copy and returns stale data immediately (ccstatusline's
-// caching playbook). Writes {at, checks|null}; null caches "gh unavailable or
-// failed" so renders don't respawn a doomed child every tick.
+// caching playbook). Writes {at, state, checks|null}; null checks cache "gh
+// unavailable or failed" so renders don't respawn a doomed child every tick.
+// <pr ref> is the PR URL when Claude Code gave one (the session's PR can live
+// in a different repo than cwd), else its number.
+//   1. `gh pr view --json state` → OPEN / MERGED / CLOSED, or null on failure
+//   2. `gh pr checks --json bucket` → the pass/fail/pending rollup
 if (process.argv[2] === "--ci-refresh") {
-  const [, , , ciCwd, prNumber, cacheFile, lockFile] = process.argv;
-  try {
-    let checks = null;
-    const r = cp.spawnSync("gh", ["pr", "checks", String(prNumber), "--json", "bucket"], {
+  const [, , , ciCwd, prRef, cacheFile, lockFile] = process.argv;
+  const ghJson = (args) => {                                     // run gh, parse its JSON, null on any failure
+    const r = cp.spawnSync("gh", args, {
       cwd: ciCwd || undefined,
       encoding: "utf8",
       timeout: 20000,
       windowsHide: true,
     });
-    if (!r.error && r.status === 0 && r.stdout) {
-      try {
-        const arr = JSON.parse(r.stdout);
-        if (Array.isArray(arr)) {
-          const c = { pass: 0, fail: 0, pending: 0, total: 0 };
-          for (const it of arr) {
-            const b = String(it?.bucket || "").toLowerCase();
-            if (b === "pass" || b === "skipping") c.pass++;
-            else if (b === "fail" || b === "cancel") c.fail++;
-            else c.pending++;
-            c.total++;
-          }
-          checks = c;
-        }
-      } catch {}
+    if (r.error || r.status !== 0 || !r.stdout) return null;
+    try {
+      return JSON.parse(r.stdout);
+    } catch {
+      return null;
+    }
+  };
+  try {
+    const state = ghJson(["pr", "view", String(prRef), "--json", "state"])?.state || null;
+    let checks = null;
+    const arr = ghJson(["pr", "checks", String(prRef), "--json", "bucket"]);
+    if (Array.isArray(arr)) {
+      const c = { pass: 0, fail: 0, pending: 0, total: 0 };
+      for (const it of arr) {
+        const b = String(it?.bucket || "").toLowerCase();
+        if (b === "pass" || b === "skipping") c.pass++;
+        else if (b === "fail" || b === "cancel") c.fail++;
+        else c.pending++;
+        c.total++;
+      }
+      checks = c;
     }
     try {
-      fs.writeFileSync(cacheFile, JSON.stringify({ at: Date.now(), checks }));
+      fs.writeFileSync(cacheFile, JSON.stringify({ at: Date.now(), state, checks }));
     } catch {}
   } catch {
   } finally {
@@ -856,22 +865,28 @@ function gitIntelText(gi) {
   return tip(parts, bits.join(" "));
 }
 
-// --- CI status (🚦) -----------------------------------------------------------
+// --- PR status + CI (🔗 / 🚦) -------------------------------------------------
 
-// PR check rollup, stale-while-revalidate: the render only ever reads the
-// cache; when it's past TTL a detached `--ci-refresh` child re-runs `gh pr
-// checks` and rewrites it (a lock file prevents a spawn stampede; a crashed
-// child's lock is stolen after 3 minutes). TTLs: 90s while checks are
-// pending, 5m once settled, 15m after a gh failure. The label IS the reading
-// (passed/total, colored) so nothing is lost to the hover, and the click
-// opens the PR's checks page.
-function ciSegment(d, cwd) {
+// PR state + check rollup, stale-while-revalidate: the render only ever reads
+// the cache; when it's past TTL a detached `--ci-refresh` child (top of this
+// file) re-runs `gh pr view` + `gh pr checks` and rewrites it (a lock file
+// prevents a spawn stampede; a crashed child's lock is stolen after 3
+// minutes). Returns the cached {at, state, checks} record, or null.
+//   TTLs: 1h once MERGED/CLOSED (final, barring a reopen), 90s while checks
+//   are pending, 5m once settled, 15m after a gh failure.
+function prStatus(d, cwd) {
   try {
     const pr = d?.pr;
     if (pr?.number == null) return null;
     const key = `ci-${pr.number}-${hash8(String(cwd || ""))}.json`;
     const cached = readState(key);
-    const ttl = !cached ? 0 : cached.checks ? (cached.checks.pending > 0 ? 90000 : 300000) : 900000;
+    const ttl = !cached
+      ? 0
+      : prIsDone(cached)
+        ? 3600000
+        : cached.checks
+          ? (cached.checks.pending > 0 ? 90000 : 300000)
+          : 900000;
     const fresh = cached && Date.now() - (cached.at || 0) < ttl;
     if (!fresh && !process.env.CLAUDE_TUI_DASHBOARD_NO_SPAWN) {
       const lock = path.join(stateDir(), key + ".lock");
@@ -892,7 +907,7 @@ function ciSegment(d, cwd) {
         try {
           cp.spawn(
             process.execPath,
-            [__filename, "--ci-refresh", String(cwd || ""), String(pr.number), path.join(stateDir(), key), lock],
+            [__filename, "--ci-refresh", String(cwd || ""), String(pr.url || pr.number), path.join(stateDir(), key), lock],
             { detached: true, stdio: "ignore", windowsHide: true },
           ).unref();
         } catch {
@@ -902,7 +917,24 @@ function ciSegment(d, cwd) {
         }
       }
     }
-    const c = cached?.checks;
+    return cached;
+  } catch {
+    return null;
+  }
+}
+
+// prIsDone: the PR is merged or closed, so the session's 🔗/🚦 are history.
+function prIsDone(status) {
+  return status?.state === "MERGED" || status?.state === "CLOSED";
+}
+
+// CI label from the prStatus record: the label IS the reading (passed/total,
+// colored) so nothing is lost to the hover, and the click opens the PR's
+// checks page.
+function ciSegment(d, status) {
+  try {
+    const pr = d?.pr;
+    const c = status?.checks;
     if (!c || !c.total) return null;
     const color = c.fail > 0 ? C.red : c.pending > 0 ? C.yellow : C.green;
     const label = `🚦 ${col(color, `${c.pass}/${c.total}`)}`;
@@ -1125,17 +1157,24 @@ function render(d, rawJson) {
   if (wt && wtName && branch && wtName !== branch && wtPath) {
     nav.push(osc8(localUrl(wtPath), `📂 ${wtName}`));
   }
-  if (d?.pr?.number != null && d?.pr?.url) {
-    const label = `🔗 PR #${d.pr.number}`;
-    const st = PR_STYLE[d?.pr?.review_state];
-    nav.push(
-      st
-        ? linkWrap(d.pr.url, `\x1b[${st[0]}m${label}\x1b[${st[1]}m`)
-        : osc8(d.pr.url, label),
-    );
+  // Claude Code can keep a long-merged PR in `pr` for the rest of a session
+  // (anthropics/claude-code#100360), so a MERGED/CLOSED state from the
+  // prStatus cache (see prStatus above) hides both 🔗 and 🚦. Until the first
+  // refresh lands the state is unknown and the link shows as before.
+  const prState = prStatus(d, intelCwd);
+  if (!prIsDone(prState)) {
+    if (d?.pr?.number != null && d?.pr?.url) {
+      const label = `🔗 PR #${d.pr.number}`;
+      const st = PR_STYLE[d?.pr?.review_state];
+      nav.push(
+        st
+          ? linkWrap(d.pr.url, `\x1b[${st[0]}m${label}\x1b[${st[1]}m`)
+          : osc8(d.pr.url, label),
+      );
+    }
+    const ci = ciSegment(d, prState);
+    if (ci) nav.push(ci);
   }
-  const ci = ciSegment(d, intelCwd);
-  if (ci) nav.push(ci);
 
   // Pad so line 2 always shows at least two links: repo → issues → cwd.
   const fallbacks = [];

@@ -42,7 +42,7 @@ needed.
 |------|-------|
 | ⑂ `f/branch-name` | The branch/worktree folder in your file manager (branch names compact to `f/first-three-words`) |
 | ↑2 ↓1 ●3 ✚1 …1 ✖1 ⚑2 | Git intel: ahead/behind, staged, modified, untracked, conflicts, stash — plus a red `MERGE`/`REBASE`/`CHERRY-PICK`/`BISECT` flag when an operation is in progress; a lone green ✔ = clean |
-| 🔗 `PR #12` | The pull request on GitHub, colored by review state (green approved · red changes requested · yellow pending · dim draft) |
+| 🔗 `PR #12` | The pull request on GitHub, colored by review state (green approved · red changes requested · yellow pending · dim draft); hidden along with 🚦 once `gh` reports it merged or closed |
 | 🚦 `2/3` | CI check rollup (via `gh`, refreshed in a detached child — renders never block); click opens the checks page |
 | 🌐 / 🐛 / 📁 | Fallback links (repo, issues, cwd) so line 2 always has at least two |
 | [📒] | The Claude Code logs folder for this session |

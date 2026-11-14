@@ -2,6 +2,14 @@
 
 All notable changes to the claude-tui-dashboard plugin.
 
+## Unreleased — fixes
+
+- **Merged/closed PRs hide from line 2.** Claude Code can keep a session's
+  `pr` field pinned to a long-merged PR (anthropics/claude-code#100360). The
+  `--ci-refresh` child now also runs `gh pr view --json state`, and a
+  MERGED or CLOSED state hides both 🔗 and 🚦. It queries by PR URL, so a PR
+  from another repo than the cwd resolves correctly.
+
 ## Unreleased — rebrand to claude-tui-dashboard (2026-08-24)
 
 Renamed the plugin and its marketplace from `cc-statusline-dashboard` and
