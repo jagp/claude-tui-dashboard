@@ -6,15 +6,15 @@
 //
 // Layout (goal state — the full T0 "wire-up-now" shelf from the possibility-
 // space catalog, docs/superpowers/specs/2026-08-01-dashboard-possibility-space.md):
-//   line 1:  <model><effort> <ctx gauge> [⚠]   ⌛ <rem5h>% [<reset>] | 📅 <rem7d>% [<reset>] | 🔋 <burn> | Σ <tokens> | ~$<cost> | 💸 <$/h> | ⏱ <wall>   <session>
-//   line 2:  ⑂ <short branch> <git intel>   🔗 PR #<n>   🚦 <ci>   [📒] [📜] [🌳]   🔥 <cache> <±churn> <chips> 👤 🐉 <clock>
+//   line 1:  <model><effort> <ctx gauge> [⚠]   ⌛ <rem5h>% [<reset>] | 📅 <rem7d>% [<reset>] | 🔋 <burn> | Σ <tokens> | ~$<cost> | 💸 <$/h> | ⏱ <wall> | 🔥 <cache>   <session> <±churn> <chips> 👤 🐉 <clock>
+//   line 2:  ⑂ <short branch> <git intel>   🔗 PR #<n>   🚦 <ci>   [📒] [📜] [🌳]
 //   line 3:  only when ~/.claude/dashboard.json exists — the exported button row
 //
 // Model = a medal ladder (haiku 🥉 · sonnet 🥈 · opus 🥇 · fable 🏆); the
 // ranking reads straight off the glyphs. Σ is the exact token count (raw
 // digits, no abbreviation). Branches show as f/first-three-words.
 //
-// Tooltips: most status segments are OSC 8 links whose URI is designed prose —
+// Tooltips: most line-1 segments are OSC 8 links whose URI is designed prose —
 // claudectl://tip/<plus-separated-words>. Hovering a link shows the raw URI,
 // so the URI *is* the tooltip. Physics: VS Code collapses the hover to the
 // word "Link" if the URI carries ANY whitespace, Windows Terminal shows only
@@ -32,9 +32,8 @@
 //
 // Line 2 always carries at least two links — when the session has no worktree
 // or PR it pads from repo → issues → cwd fallbacks — plus the emoji controls
-// (📒 logs folder · 📜 transcript · 🌳 base branch), then the session-status
-// widgets (cache warmth, churn, mode chips, account, buddy, render clock).
-// Every link is an OSC 8 hyperlink (Ctrl/Alt+click).
+// (📒 logs folder · 📜 transcript · 🌳 base branch). Every link is an OSC 8
+// hyperlink (Ctrl/Alt+click).
 //
 // Local paths: on Windows they use the custom claudectl:// scheme. VS Code's
 // terminal hijacks file:// links into Quick Open, but it must hand an unknown
@@ -1100,8 +1099,8 @@ function render(d, rawJson) {
     .join(" ");
 
   // Metered cluster: rate windows, burn projection, exact tokens, estimated
-  // cost, spend rate, session clock — every gauge wears its threshold color,
-  // every hover carries the exact numbers. (Cache warmth lives on line 2.)
+  // cost, spend rate, session clock, cache warmth — every gauge wears its
+  // threshold color, every hover carries the exact numbers.
   const segs = [usageLine(d?.rate_limits)];
   for (const seg of [
     burnSegment(d),
@@ -1109,19 +1108,15 @@ function render(d, rawJson) {
     costSegment(d?.cost),
     spendRateSegment(d?.cost),
     clockSegment(d?.cost),
+    cacheSegment(d),
   ]) {
     if (seg) segs.push(seg);
   }
 
-  // Line 1 closes on the hued session chip alone.
-  const line1 = [head, segs.join(SEP), sessionChip(d)].filter(Boolean).join("   ");
-
-  // Session-status tail (formerly the end of line 1): cache warmth,
-  // churn badge, tiny mode chips, account, buddy — and the staleness clock
-  // dead last: the bar signs its own render. It is joined onto the END of
-  // line 2 below (after the nav links and buttons), single-space separated.
-  const statusTail = [
-    cacheSegment(d),
+  // Identity tail: hued session chip, churn badge, tiny mode chips, account,
+  // buddy — and the staleness clock dead last: the bar signs its own render.
+  const tail = [
+    sessionChip(d),
     churnSegment(d?.cost),
     ...smallChips(d),
     accountChip(),
@@ -1130,6 +1125,8 @@ function render(d, rawJson) {
   ]
     .filter(Boolean)
     .join(" ");
+
+  const line1 = [head, segs.join(SEP), tail].filter(Boolean).join("   ");
 
   // Navigation line: branch/worktree → open the folder via the OS handler
   // (Explorer/Finder in a passthrough terminal); PR → GitHub. The branch link
@@ -1212,13 +1209,8 @@ function render(d, rawJson) {
     if (target) buttons.push(button(target, "🌳"));
   }
 
-  // Line 2 = nav links, then the buttons, then the session-status tail built
-  // above. The tail is not a nav link, so it never counts toward the
-  // two-link padding rule (the `nav.length < 2` loop above). It alone is
-  // enough to make line 2 render, even when nav and buttons are both empty.
   const line2Parts = [...nav];
   if (buttons.length) line2Parts.push(buttons.join(" "));
-  if (statusTail) line2Parts.push(statusTail);
 
   const lines = [line1];
   if (line2Parts.length) lines.push(line2Parts.join("   "));
