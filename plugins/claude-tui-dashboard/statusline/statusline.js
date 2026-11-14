@@ -6,15 +6,15 @@
 //
 // Layout (goal state — the full T0 "wire-up-now" shelf from the possibility-
 // space catalog, docs/superpowers/specs/2026-08-01-dashboard-possibility-space.md):
-//   line 1:  <model><effort> <ctx gauge> [⚠]   ⌛ <rem5h>% [<reset>] | 📅 <rem7d>% [<reset>] | 🔋 <burn> | Σ <tokens> | ~$<cost> | 💸 <$/h> | ⏱ <wall> | 🔥 <cache>   <session> <±churn> <chips> 👤 🐉 <clock>
-//   line 2:  ⑂ <short branch> <git intel>   🔗 PR #<n>   🚦 <ci>   [📒] [📜] [🌳]
+//   line 1:  <model><effort> <ctx gauge> [⚠]   ⌛ <rem5h>% [<reset>] | 📅 <rem7d>% [<reset>] | 🔋 <burn> | Σ <tokens> | ~$<cost> | 💸 <$/h> | ⏱ <wall>   <session>
+//   line 2:  ⑂ <short branch> <git intel>   🔗 PR #<n>   🚦 <ci>   [📒] [📜] [🌳]   🔥 <cache> <±churn> <chips> 👤 🐉 <clock>
 //   line 3:  only when ~/.claude/dashboard.json exists — the exported button row
 //
 // Model = a medal ladder (haiku 🥉 · sonnet 🥈 · opus 🥇 · fable 🏆); the
 // ranking reads straight off the glyphs. Σ is the exact token count (raw
 // digits, no abbreviation). Branches show as f/first-three-words.
 //
-// Tooltips: most line-1 segments are OSC 8 links whose URI is designed prose —
+// Tooltips: most status segments are OSC 8 links whose URI is designed prose —
 // claudectl://tip/<plus-separated-words>. Hovering a link shows the raw URI,
 // so the URI *is* the tooltip. Physics: VS Code collapses the hover to the
 // word "Link" if the URI carries ANY whitespace, Windows Terminal shows only
@@ -32,8 +32,9 @@
 //
 // Line 2 always carries at least two links — when the session has no worktree
 // or PR it pads from repo → issues → cwd fallbacks — plus the emoji controls
-// (📒 logs folder · 📜 transcript · 🌳 base branch). Every link is an OSC 8
-// hyperlink (Ctrl/Alt+click).
+// (📒 logs folder · 📜 transcript · 🌳 base branch), then the session-status
+// widgets (cache warmth, churn, mode chips, account, buddy, render clock).
+// Every link is an OSC 8 hyperlink (Ctrl/Alt+click).
 //
 // Local paths: on Windows they use the custom claudectl:// scheme. VS Code's
 // terminal hijacks file:// links into Quick Open, but it must hand an unknown
