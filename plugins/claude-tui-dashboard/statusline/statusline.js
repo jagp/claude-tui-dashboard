@@ -1116,7 +1116,7 @@ function render(d, rawJson) {
   // Line 1 closes on the hued session chip alone.
   const line1 = [head, segs.join(SEP), sessionChip(d)].filter(Boolean).join("   ");
 
-  // Session-status tail, moved off line 1 to keep it short: cache warmth,
+  // Session-status tail (formerly the end of line 1): cache warmth,
   // churn badge, tiny mode chips, account, buddy — and the staleness clock
   // dead last: the bar signs its own render. It is joined onto the END of
   // line 2 below (after the nav links and buttons), single-space separated.
