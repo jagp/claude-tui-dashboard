@@ -266,6 +266,26 @@ ok(
   "ci: click opens checks page",
 );
 
+// PR state: Claude Code's `pr` field can stay pinned to a long-merged PR for
+// the rest of a session (anthropics/claude-code#100360). The same cache file
+// carries the PR's state; MERGED or CLOSED hides both the PR link and 🚦.
+const ciCacheFile = path.join(stateDir, `ci-12-${hash8(realCwd)}.json`);
+for (const doneState of ["MERGED", "CLOSED"]) {
+  fs.writeFileSync(
+    ciCacheFile,
+    JSON.stringify({ at: Date.now(), state: doneState, checks: { pass: 3, fail: 0, pending: 0, total: 3 } }),
+  );
+  r = run(full);
+  ok(!r.stdout.includes("PR #12"), `pr-state: ${doneState} PR link hidden`);
+  ok(!r.stdout.includes("🚦"), `pr-state: ${doneState} PR hides CI too`);
+}
+fs.writeFileSync(
+  ciCacheFile,
+  JSON.stringify({ at: Date.now(), state: "OPEN", checks: { pass: 3, fail: 0, pending: 0, total: 3 } }),
+);
+r = run(full);
+ok(r.stdout.includes("PR #12"), "pr-state: OPEN PR link still shown");
+
 // Added-dirs chip.
 const dirsObj = JSON.parse(full);
 dirsObj.workspace.added_dirs = ["C:\\one", "C:\\two"];
