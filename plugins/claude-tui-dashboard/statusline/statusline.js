@@ -1099,8 +1099,8 @@ function render(d, rawJson) {
     .join(" ");
 
   // Metered cluster: rate windows, burn projection, exact tokens, estimated
-  // cost, spend rate, session clock, cache warmth — every gauge wears its
-  // threshold color, every hover carries the exact numbers.
+  // cost, spend rate, session clock — every gauge wears its threshold color,
+  // every hover carries the exact numbers. (Cache warmth lives on line 2.)
   const segs = [usageLine(d?.rate_limits)];
   for (const seg of [
     burnSegment(d),
@@ -1108,15 +1108,19 @@ function render(d, rawJson) {
     costSegment(d?.cost),
     spendRateSegment(d?.cost),
     clockSegment(d?.cost),
-    cacheSegment(d),
   ]) {
     if (seg) segs.push(seg);
   }
 
-  // Identity tail: hued session chip, churn badge, tiny mode chips, account,
-  // buddy — and the staleness clock dead last: the bar signs its own render.
-  const tail = [
-    sessionChip(d),
+  // Line 1 closes on the hued session chip alone.
+  const line1 = [head, segs.join(SEP), sessionChip(d)].filter(Boolean).join("   ");
+
+  // Session-status tail, moved off line 1 to keep it short: cache warmth,
+  // churn badge, tiny mode chips, account, buddy — and the staleness clock
+  // dead last: the bar signs its own render. It is joined onto the END of
+  // line 2 below (after the nav links and buttons), single-space separated.
+  const statusTail = [
+    cacheSegment(d),
     churnSegment(d?.cost),
     ...smallChips(d),
     accountChip(),
@@ -1125,8 +1129,6 @@ function render(d, rawJson) {
   ]
     .filter(Boolean)
     .join(" ");
-
-  const line1 = [head, segs.join(SEP), tail].filter(Boolean).join("   ");
 
   // Navigation line: branch/worktree → open the folder via the OS handler
   // (Explorer/Finder in a passthrough terminal); PR → GitHub. The branch link
@@ -1209,8 +1211,13 @@ function render(d, rawJson) {
     if (target) buttons.push(button(target, "🌳"));
   }
 
+  // Line 2 = nav links, then the buttons, then the session-status tail built
+  // above. The tail is not a nav link, so it never counts toward the
+  // two-link padding rule (the `nav.length < 2` loop above). It alone is
+  // enough to make line 2 render, even when nav and buttons are both empty.
   const line2Parts = [...nav];
   if (buttons.length) line2Parts.push(buttons.join(" "));
+  if (statusTail) line2Parts.push(statusTail);
 
   const lines = [line1];
   if (line2Parts.length) lines.push(line2Parts.join("   "));
