@@ -25,8 +25,8 @@ STOP without deploying anything and tell the user to install the plugin
 first:
 
 ```
-/plugin marketplace add <path-or-repo-of-the-claude-tui-dashboard-marketplace>
-/plugin install claude-tui-dashboard@claude-tui-dashboard
+/plugin marketplace add jagp/interface-layer
+/plugin install claude-tui-dashboard@interface-layer
 ```
 
 Then re-run `/claude-tui-dashboard:activate-dashboard`.
