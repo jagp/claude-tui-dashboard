@@ -87,8 +87,8 @@ by any web page and probing a UNC path would auto-send NTLM credentials.
 ## Install
 
 ```
-/plugin marketplace add <path-or-git-url-of-this-repo>
-/plugin install claude-tui-dashboard@claude-tui-dashboard
+/plugin marketplace add jagp/interface-layer
+/plugin install claude-tui-dashboard@interface-layer
 /claude-tui-dashboard:install
 ```
 

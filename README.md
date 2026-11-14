@@ -23,8 +23,8 @@ every destination is a clickable link.
 ## Install
 
 ```
-/plugin marketplace add <path-or-git-url-of-this-repo>
-/plugin install claude-tui-dashboard@claude-tui-dashboard
+/plugin marketplace add jagp/interface-layer
+/plugin install claude-tui-dashboard@interface-layer
 /claude-tui-dashboard:activate-dashboard
 ```
 
@@ -52,7 +52,6 @@ gemstones, …) plus terminal-rendering caveats:
 ## Repo layout
 
 ```
-.claude-plugin/marketplace.json     marketplace listing
 plugins/claude-tui-dashboard/    the installable plugin (single source of truth)
   statusline/                       statusline.js + claudectl protocol scripts
   skills/activate-dashboard, skills/deactivate-dashboard  the /claude-tui-dashboard:* skills
