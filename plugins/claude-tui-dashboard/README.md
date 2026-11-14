@@ -7,8 +7,8 @@ vital signs read off self-ordering glyphs and threshold colors — no legend
 needed.
 
 ```
-🏆● ▅ 42% ⚠   ⌛ 77% [15:20] | 📅 39% [8/5 19:20] | 🔋 4.2%/h empty ~18:40 | Σ 96310 | ~$3.42 | 💸 $2.28/h | ⏱ 1h30m | 🔥 4:12   my-session +120-30 NORMAL 💭 ⚡ 🎨 explanatory 👤 🐉 14:32:07
-⑂ f/my-feature ↑2 ●3 ✚1 …1   🔗 PR #12   🚦 2/3   [📒] [📜] [🌳]
+🏆● ▅ 42% ⚠   ⌛ 77% [15:20] | 📅 39% [8/5 19:20] | 🔋 4.2%/h empty ~18:40 | Σ 96310 | ~$3.42 | 💸 $2.28/h | ⏱ 1h30m   my-session
+⑂ f/my-feature ↑2 ●3 ✚1 …1   🔗 PR #12   🚦 2/3   [📒] [📜] [🌳]   🔥 4:12 +120-30 NORMAL 💭 ⚡ 🎨 explanatory 👤 🐉 14:32:07
 ```
 
 ## What each piece means
@@ -28,13 +28,7 @@ needed.
 | ~$`3.42` | Estimated session cost (hover: wall vs API time) |
 | 💸 `$2.28/h` | Spend rate, projected linearly (shown after 10 min) |
 | ⏱ `1h30m` | Session wall clock (hover: API share — the "thinking ratio") |
-| 🔥 `4:12` / 🧊 | Prompt-cache warmth: countdown to TTL expiry, sensed from the transcript tail; 🧊 = cold, next message re-pays the cache write |
 | `my-session` | Session chip, hue hashed from the session id (stable across panes); click copies the id |
-| `+120-30` | Lines added/removed this session (hidden at zero) |
-| `NORMAL` 💭 ⚡ 🤖 🎨 📂+n | Mode chips, smart-hidden when absent: vim mode (INSERT green / VISUAL magenta), thinking, fast mode, agent, output style, added workspace dirs |
-| 👤 | Account chip — hover shows which account this terminal burns quota on |
-| 🥚🐣🐥🦕🐉 | Session buddy: grows with lines + minutes + tokens; hover shows its level, kaomoji mood (reads real context/quota pressure), and vitals. `CLAUDE_TUI_DASHBOARD_NO_PET=1` hides it |
-| `14:32:07` | Staleness clock: when this render happened; turns yellow with a `*` when the payload has been frozen >2.5 min (long turn) |
 
 **Line 2 — navigation (every item is an OSC 8 hyperlink; Ctrl/Alt+click)**
 
@@ -48,6 +42,17 @@ needed.
 | [📒] | The Claude Code logs folder for this session |
 | [📜] | The session transcript file |
 | [🌳] | The base branch on GitHub (or the trunk folder locally) |
+
+Line 2 then ends with the **session-status** widgets (hover for details):
+
+| Piece | Meaning |
+|-------|---------|
+| 🔥 `4:12` / 🧊 | Prompt-cache warmth: countdown to TTL expiry, sensed from the transcript tail; 🧊 = cold, next message re-pays the cache write |
+| `+120-30` | Lines added/removed this session (hidden at zero) |
+| `NORMAL` 💭 ⚡ 🤖 🎨 📂+n | Mode chips, smart-hidden when absent: vim mode (INSERT green / VISUAL magenta), thinking, fast mode, agent, output style, added workspace dirs |
+| 👤 | Account chip — hover shows which account this terminal burns quota on |
+| 🥚🐣🐥🦕🐉 | Session buddy: grows with lines + minutes + tokens; hover shows its level, kaomoji mood (reads real context/quota pressure), and vitals. `CLAUDE_TUI_DASHBOARD_NO_PET=1` hides it |
+| `14:32:07` | Staleness clock: when this render happened; turns yellow with a `*` when the payload has been frozen >2.5 min (long turn) |
 
 ## Hover tooltips
 
