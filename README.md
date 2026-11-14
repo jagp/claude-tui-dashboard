@@ -6,8 +6,8 @@ This repo is a **Claude Code plugin marketplace**; its first plugin,
 every destination is a clickable link.
 
 ```
-🏆●   ⌛ 80% [15:20]  |  📅 62% [7/28 4:37]  |  Σ 162345
-⑂ f/claude-tui-dashboard   🔗 PR #12   [📒] [📜] [🌳]
+🏆●   ⌛ 80% [15:20]  |  📅 62% [7/28 4:37]  |  Σ 162345   my-session
+⑂ f/claude-tui-dashboard   🔗 PR #12   [📒] [📜] [🌳]   🔥 4:12 👤 🐉 14:32:07
 ```
 
 - **Medal model badge** (🥉 haiku → 🏆 fable) and **effort dial** (○–★) — the
