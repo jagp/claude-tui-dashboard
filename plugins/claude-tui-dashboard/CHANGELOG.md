@@ -2,7 +2,14 @@
 
 All notable changes to the claude-tui-dashboard plugin.
 
-## Unreleased — fixes
+## 1.1.0 — 2026-11-14
+
+### Fixes
+
+- **Install from InterfaceLayer.** The plugin is now listed in the central
+  marketplace (`/plugin marketplace add jagp/interface-layer`, then
+  `/plugin install claude-tui-dashboard@interface-layer`). The repo no longer
+  ships its own `marketplace.json`.
 
 - **Merged/closed PRs hide from line 2.** Claude Code can keep a session's
   `pr` field pinned to a long-merged PR (anthropics/claude-code#100360). The
@@ -10,7 +17,7 @@ All notable changes to the claude-tui-dashboard plugin.
   MERGED or CLOSED state hides both 🔗 and 🚦. It queries by PR URL, so a PR
   from another repo than the cwd resolves correctly.
 
-## Unreleased — rebrand to claude-tui-dashboard (2026-08-24)
+### Rebrand to claude-tui-dashboard (2026-08-24)
 
 Renamed the plugin and its marketplace from `cc-statusline-dashboard` and
 `claude-dashboard` to a single name, `claude-tui-dashboard`. Historical
@@ -30,7 +37,7 @@ entries below keep the command names they shipped under.
 - Windows uninstall-entry Publisher string is now `claude-tui-dashboard
   (local)`
 
-## Unreleased — goal-state density (2026-08-04)
+### Goal-state density (2026-08-04)
 
 The full T0 "wire-up-now" shelf from the possibility-space catalog
 (`docs/superpowers/specs/2026-08-01-dashboard-possibility-space.md`), on top
@@ -70,7 +77,7 @@ tip / copy / open / spawn or https.
   added-dirs, account, pet + kill switch, staleness stamp, and an
   everything-on URI physics sweep)
 
-## Unreleased
+### Diagnose skill
 
 - New `/cc-statusline-dashboard:diagnose` skill: gate-by-gate troubleshooting
   for dead statusline links (raw-link probe, hover-tooltip triage, the three

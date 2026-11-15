@@ -278,6 +278,8 @@ for (const doneState of ["MERGED", "CLOSED"]) {
   r = run(full);
   ok(!r.stdout.includes("PR #12"), `pr-state: ${doneState} PR link hidden`);
   ok(!r.stdout.includes("🚦"), `pr-state: ${doneState} PR hides CI too`);
+  // Absence checks pass vacuously if line 2 never rendered — pin that it did.
+  ok(r.stdout.includes("⑂"), `pr-state: ${doneState} line 2 still renders`);
 }
 fs.writeFileSync(
   ciCacheFile,

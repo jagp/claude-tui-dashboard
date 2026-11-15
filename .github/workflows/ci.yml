@@ -1,0 +1,25 @@
+# Runs both test suites on pushes and pull requests.
+#   1. run-tests.js     — spawns the real statusline with fixture payloads
+#   2. handler.tests.ps1 — dry-run contract tests for the claudectl:// handler
+# Windows runner: the handler suite needs Windows PowerShell, and the
+# statusline emits claudectl:// links on win32 (what the tests assert).
+# The interface-layer pipeline merges release PRs only once these pass.
+name: ci
+
+on:
+  push:
+  pull_request:
+
+jobs:
+  test:
+    runs-on: windows-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 20
+      - name: Statusline suite
+        run: node plugins/claude-tui-dashboard/tests/run-tests.js
+      - name: Protocol handler suite
+        shell: powershell
+        run: powershell -NoProfile -ExecutionPolicy Bypass -File plugins/claude-tui-dashboard/tests/handler.tests.ps1
