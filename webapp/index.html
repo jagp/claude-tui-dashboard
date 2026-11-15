@@ -1,0 +1,1281 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Moodline — statuslines with feelings</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;700&family=Space+Grotesk:wght@400;600;700&display=swap" rel="stylesheet">
+<style>
+/* ============================================================
+   Actionmoji — functional/neutral base layer.
+   The visual skin is being designed separately (Design mode).
+   EVERYTHING here is restylable:
+     - custom props in the single :root block below
+     - BEM-ish classes on every element
+     - data-* state attrs on interactive elements
+     - zero inline styles anywhere in markup or JS
+   ============================================================ */
+:root {
+  color-scheme: light dark;
+  /* -- palette -- */
+  --bg: #f5f5f2;
+  --fg: #1d1d1b;
+  --fg-muted: #6d6d66;
+  --panel-bg: #ffffff;
+  --card-bg: #fafaf7;
+  --inset-bg: #ecece6;
+  --terminal-bg: #23262b;
+  --terminal-fg: #d7dde4;
+  --border: #c8c8c0;
+  --border-strong: #8e8e85;
+  --accent: #3b6ea5;
+  --accent-soft: #dfe9f5;
+  --accent-contrast: #ffffff;
+  --danger: #a54040;
+  --ok: #3f7d4e;
+  --warn: #96702a;
+  --warn-bg: #f7efd8;
+  /* -- geometry -- */
+  --gap: 0.75rem;
+  --gap-s: 0.4rem;
+  --gap-l: 1.25rem;
+  --radius: 6px;
+  --radius-s: 4px;
+  --border-w: 1px;
+  --maxw: 1400px;
+  /* -- type -- */
+  --font: system-ui, "Segoe UI", sans-serif;
+  --mono: ui-monospace, "Cascadia Mono", Consolas, monospace;
+  --fs: 0.95rem;
+  --fs-s: 0.8rem;
+  --fs-title: 1.5rem;
+}
+@media (prefers-color-scheme: dark) {
+  :root {
+    --bg: #17181a;
+    --fg: #e4e4df;
+    --fg-muted: #98988f;
+    --panel-bg: #1f2124;
+    --card-bg: #24262a;
+    --inset-bg: #2b2d31;
+    --terminal-bg: #101215;
+    --terminal-fg: #cfd6dd;
+    --border: #3a3c40;
+    --border-strong: #5b5d62;
+    --accent: #7aa2d4;
+    --accent-soft: #263442;
+    --accent-contrast: #10131a;
+    --danger: #d08585;
+    --ok: #8bc49a;
+    --warn: #cfae62;
+    --warn-bg: #33301f;
+  }
+}
+
+/* -- base -- */
+* { box-sizing: border-box; }
+body {
+  margin: 0;
+  padding: var(--gap-l);
+  background: var(--bg);
+  color: var(--fg);
+  font-family: var(--font);
+  font-size: var(--fs);
+  line-height: 1.45;
+}
+h1, h2, h3 { margin: 0; font-weight: 600; }
+code { font-family: var(--mono); font-size: 0.9em; }
+button { font: inherit; color: inherit; cursor: pointer; }
+textarea, input[type="text"] { font: inherit; color: inherit; }
+
+/* -- generic widgets -- */
+.btn {
+  background: var(--panel-bg);
+  border: var(--border-w) solid var(--border-strong);
+  border-radius: var(--radius-s);
+  padding: 0.25rem 0.7rem;
+  font-family: var(--mono);
+  font-size: var(--fs-s);
+  text-decoration: none;
+  display: inline-block;
+}
+.btn:hover { border-color: var(--accent); color: var(--accent); }
+.btn--primary { background: var(--accent); color: var(--accent-contrast); border-color: var(--accent); }
+.btn--primary:hover { color: var(--accent-contrast); filter: brightness(1.1); }
+.btn--danger { color: var(--danger); border-color: var(--danger); background: transparent; }
+.btn--danger:hover { color: var(--danger); border-color: var(--danger); filter: brightness(1.15); }
+.btn--mini { padding: 0.05rem 0.4rem; }
+.btn--ghost { border-color: transparent; background: transparent; color: var(--fg-muted); }
+.btn--ghost:hover { color: var(--danger); border-color: transparent; }
+
+.panel {
+  background: var(--panel-bg);
+  border: var(--border-w) solid var(--border);
+  border-radius: var(--radius);
+  padding: var(--gap);
+}
+.panel__title { font-size: 1rem; font-family: var(--mono); }
+.panel__hint { color: var(--fg-muted); font-size: var(--fs-s); margin: var(--gap-s) 0; }
+
+.field { display: block; margin-top: var(--gap-s); }
+.field__label { display: block; font-size: var(--fs-s); color: var(--fg-muted); margin-bottom: 2px; }
+.field__input {
+  width: 100%;
+  background: var(--card-bg);
+  border: var(--border-w) solid var(--border);
+  border-radius: var(--radius-s);
+  padding: 0.3rem 0.45rem;
+  font-family: var(--mono);
+  font-size: var(--fs-s);
+  resize: vertical;
+}
+.field__input:focus { outline: 2px solid var(--accent); outline-offset: -1px; }
+.field__hint { display: block; font-size: var(--fs-s); color: var(--fg-muted); margin-top: 2px; }
+
+/* -- masthead -- */
+.masthead { max-width: var(--maxw); margin: 0 auto var(--gap-l); }
+.masthead__title { font-size: var(--fs-title); font-family: var(--mono); }
+.masthead__tagline { margin: 0; color: var(--accent); font-family: var(--mono); }
+.masthead__hint { margin: var(--gap-s) 0 0; color: var(--fg-muted); font-size: var(--fs-s); }
+
+/* -- the bar (working tree / HEAD) -- */
+.bar-section { max-width: var(--maxw); margin: 0 auto var(--gap-l); }
+.bar-section__head { display: flex; align-items: baseline; gap: var(--gap); margin-bottom: var(--gap-s); }
+.bar-section__title { font-size: 1rem; font-family: var(--mono); flex: 1; }
+.bar {
+  display: flex;
+  align-items: center;
+  gap: 2px;
+  min-height: 3.2rem;
+  padding: 0.4rem 0.6rem;
+  background: var(--terminal-bg);
+  color: var(--terminal-fg);
+  border: var(--border-w) solid var(--border-strong);
+  border-radius: var(--radius);
+  font-family: var(--mono);
+  /* hovercards hang below; slots position against them */
+}
+.bar__slot { position: relative; display: inline-flex; align-items: center; padding: 0.15rem 0.3rem; border-radius: var(--radius-s); }
+.bar__slot:hover { background: var(--accent-soft); color: var(--fg); }
+.bar__slot--flex { flex: 1 1 0; justify-content: center; border: 1px dashed var(--border-strong); opacity: 0.75; }
+.bar__slot--divider { opacity: 0.8; }
+.bar__glyph { white-space: pre; font-size: 1.1rem; }
+.bar__flex-label { font-size: var(--fs-s); opacity: 0.8; }
+.bar__tools { display: inline-flex; gap: 1px; margin-left: 0.25rem; visibility: hidden; }
+.bar__slot:hover .bar__tools { visibility: visible; }
+.bar__tool {
+  background: transparent; border: none; padding: 0 0.2rem;
+  font-family: var(--mono); font-size: var(--fs-s); color: inherit; opacity: 0.8;
+}
+.bar__tool:hover { opacity: 1; color: var(--accent); }
+.bar__tool--danger:hover { color: var(--danger); }
+.bar-section__empty { color: var(--fg-muted); font-size: var(--fs-s); font-family: var(--mono); margin: var(--gap-s) 0 0; }
+
+/* the hovercard: tooltip prose + the exact composed URI (the product's soul) */
+.hovercard {
+  display: none;
+  position: absolute;
+  top: 100%;
+  left: 0;
+  z-index: 30;
+  min-width: 18rem;
+  max-width: 34rem;
+  background: var(--panel-bg);
+  color: var(--fg);
+  border: var(--border-w) solid var(--border-strong);
+  border-radius: var(--radius);
+  padding: var(--gap-s) var(--gap);
+  font-family: var(--mono);
+  font-size: var(--fs-s);
+  box-shadow: 0 4px 14px rgba(0,0,0,0.25);
+}
+.bar__slot:hover .hovercard { display: block; }
+.hovercard__prose { margin-bottom: var(--gap-s); }
+.hovercard__raw { color: var(--fg-muted); word-break: break-all; }
+.hovercard__uri { display: block; margin-top: var(--gap-s); color: var(--accent); word-break: break-all; }
+.hovercard__kb { margin-top: var(--gap-s); color: var(--fg-muted); }
+
+/* -- workbench grid -- */
+.workbench {
+  max-width: var(--maxw);
+  margin: 0 auto;
+  display: grid;
+  grid-template-columns: 300px minmax(320px, 1fr) 340px;
+  grid-template-areas: "reservoir staging sidecar";
+  gap: var(--gap-l);
+  align-items: start;
+}
+.reservoir { grid-area: reservoir; }
+.staging { grid-area: staging; }
+.sidecar { grid-area: sidecar; display: grid; gap: var(--gap-l); }
+@media (max-width: 1100px) {
+  .workbench { grid-template-columns: 1fr 1fr; grid-template-areas: "reservoir staging" "sidecar sidecar"; }
+}
+@media (max-width: 760px) {
+  .workbench { grid-template-columns: 1fr; grid-template-areas: "reservoir" "staging" "sidecar"; }
+}
+
+/* -- reservoir -- */
+.reservoir__group { border: var(--border-w) solid var(--border); border-radius: var(--radius); background: var(--panel-bg); margin-bottom: var(--gap); }
+.reservoir__summary { cursor: pointer; padding: var(--gap-s) var(--gap); font-family: var(--mono); font-size: var(--fs-s); }
+.reservoir__note { padding: 0 var(--gap); margin: 0 0 var(--gap-s); color: var(--fg-muted); font-size: var(--fs-s); }
+.reservoir__items { display: flex; flex-wrap: wrap; gap: var(--gap-s); padding: 0 var(--gap) var(--gap); }
+.reservoir__glyph {
+  background: var(--card-bg); border: var(--border-w) solid var(--border); border-radius: var(--radius-s);
+  padding: 0.2rem 0.4rem; font-size: 1.05rem; font-family: var(--mono);
+}
+.reservoir__glyph:hover { border-color: var(--accent); }
+.reservoir__glyph[data-selected="true"] { border-color: var(--accent); background: var(--accent-soft); }
+.reservoir__ramp {
+  display: flex; align-items: center; gap: var(--gap-s); width: 100%;
+  background: var(--card-bg); border: var(--border-w) solid var(--border); border-radius: var(--radius-s);
+  padding: 0.25rem 0.45rem; text-align: left;
+}
+.reservoir__ramp:hover { border-color: var(--accent); }
+.reservoir__ramp-stops { font-size: 1.05rem; white-space: pre; }
+.reservoir__ramp-name { font-family: var(--mono); font-size: var(--fs-s); color: var(--fg-muted); margin-left: auto; }
+
+/* -- staging (the index) -- */
+.staging__head { display: flex; align-items: baseline; gap: var(--gap); }
+.staging__title { font-size: 1rem; font-family: var(--mono); flex: 1; }
+.staging__warning {
+  margin: var(--gap-s) 0; padding: var(--gap-s) var(--gap);
+  background: var(--warn-bg); color: var(--warn);
+  border: var(--border-w) solid var(--warn); border-radius: var(--radius-s);
+  font-size: var(--fs-s); font-family: var(--mono);
+}
+.staging__empty { color: var(--fg-muted); font-size: var(--fs-s); font-family: var(--mono); }
+.staging__card {
+  background: var(--panel-bg); border: var(--border-w) solid var(--border); border-radius: var(--radius);
+  padding: var(--gap); margin-bottom: var(--gap);
+}
+.staging__card[data-active="true"] { border-color: var(--accent); box-shadow: 0 0 0 1px var(--accent); }
+.staging__card-head { display: flex; align-items: center; gap: var(--gap-s); }
+.staging__select { flex: 1; display: flex; align-items: center; gap: var(--gap-s); background: transparent; border: none; text-align: left; padding: 0; }
+.staging__glyphs { font-size: 1.3rem; white-space: pre; }
+.staging__card-name { font-family: var(--mono); font-size: var(--fs-s); color: var(--fg-muted); }
+.staging__stops { display: flex; gap: var(--gap-s); margin-top: var(--gap-s); }
+.staging__stop { background: var(--card-bg); border: var(--border-w) solid var(--border); border-radius: var(--radius-s); padding: 0.15rem 0.35rem; font-size: 1.05rem; }
+.staging__stop[data-selected="true"] { border-color: var(--accent); background: var(--accent-soft); }
+.staging__meta { display: flex; gap: var(--gap); font-size: var(--fs-s); color: var(--fg-muted); font-family: var(--mono); margin-top: 2px; }
+.staging__count--over { color: var(--danger); }
+.staging__suggest {
+  margin-top: var(--gap-s); padding: var(--gap-s);
+  background: var(--warn-bg); color: var(--warn);
+  border: var(--border-w) dashed var(--warn); border-radius: var(--radius-s);
+  font-size: var(--fs-s);
+}
+.staging__suggest-text { word-break: break-all; }
+.staging__uri { margin-top: var(--gap-s); padding: var(--gap-s); background: var(--inset-bg); border-radius: var(--radius-s); font-size: var(--fs-s); }
+.staging__rule { display: block; color: var(--fg-muted); font-family: var(--mono); margin-bottom: 2px; }
+.staging__uri-text { word-break: break-all; color: var(--accent); }
+.staging__card-foot { display: flex; justify-content: flex-end; gap: var(--gap-s); margin-top: var(--gap); }
+
+/* -- actions reservoir -- */
+.actions__list { display: grid; gap: var(--gap-s); }
+.actions__item {
+  display: block; width: 100%; text-align: left;
+  background: var(--card-bg); border: var(--border-w) solid var(--border); border-radius: var(--radius-s);
+  padding: 0.3rem 0.5rem;
+}
+.actions__item:hover { border-color: var(--accent); }
+.actions__item[data-selected="true"] { border-color: var(--accent); background: var(--accent-soft); }
+.actions__label { font-size: var(--fs-s); }
+.actions__template { display: block; font-family: var(--mono); font-size: var(--fs-s); color: var(--fg-muted); word-break: break-all; }
+
+/* -- quicklaunch -- */
+.quicklaunch__list { display: grid; gap: var(--gap-s); }
+.quicklaunch__item { display: flex; align-items: center; gap: var(--gap-s); }
+.quicklaunch__install { flex-shrink: 0; }
+.quicklaunch__why { font-size: var(--fs-s); color: var(--fg-muted); }
+
+/* -- git log -- */
+.log__list { list-style: none; margin: 0; padding: 0; font-family: var(--mono); font-size: var(--fs-s); max-height: 18rem; overflow-y: auto; }
+.log__entry { padding: 1px 0; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.log__hash { color: var(--warn); margin-right: 0.4rem; }
+.log__empty { color: var(--fg-muted); font-family: var(--mono); font-size: var(--fs-s); }
+
+/* -- porcelain (push / pull) -- */
+.porcelain {
+  max-width: var(--maxw);
+  margin: var(--gap-l) auto 0;
+  display: grid; grid-template-columns: 1fr 1fr; gap: var(--gap-l); align-items: start;
+}
+@media (max-width: 900px) { .porcelain { grid-template-columns: 1fr; } }
+.push__json, .pull__input { width: 100%; font-family: var(--mono); font-size: var(--fs-s); background: var(--inset-bg); border: var(--border-w) solid var(--border); border-radius: var(--radius-s); padding: var(--gap-s); }
+.push__tools, .pull__tools { display: flex; align-items: center; gap: var(--gap); margin-top: var(--gap-s); flex-wrap: wrap; }
+.pull__mode { font-size: var(--fs-s); font-family: var(--mono); display: inline-flex; align-items: center; gap: 0.2rem; }
+.pull__errors { margin-top: var(--gap-s); font-family: var(--mono); font-size: var(--fs-s); color: var(--danger); white-space: pre-wrap; }
+.pull__ok { color: var(--ok); }
+
+/* -- footer + status toast -- */
+.footnote { max-width: var(--maxw); margin: var(--gap-l) auto 0; color: var(--fg-muted); font-size: var(--fs-s); font-family: var(--mono); }
+.status {
+  position: fixed; bottom: var(--gap); left: 50%; transform: translateX(-50%);
+  z-index: 50; max-width: 40rem;
+  background: var(--panel-bg); border: var(--border-w) solid var(--border-strong); border-radius: var(--radius);
+  padding: var(--gap-s) var(--gap); font-family: var(--mono); font-size: var(--fs-s);
+  box-shadow: 0 4px 14px rgba(0,0,0,0.25);
+}
+.status[hidden] { display: none; }
+.status[data-tone="warn"] { border-color: var(--warn); color: var(--warn); }
+.status[data-tone="err"] { border-color: var(--danger); color: var(--danger); }
+.status[data-tone="ok"] { border-color: var(--ok); color: var(--ok); }
+
+/* ============================================================
+   THEME SKIN SLOT
+   ------------------------------------------------------------
+   Paste the Design-mode skin BELOW this line. Everything above
+   is the neutral functional layer. Recommended override order:
+     1. redefine the custom props in a new :root { } block
+     2. target BEM classes (.bar, .staging__card, ...) for shape
+     3. use data-* state hooks: [data-active], [data-selected],
+        [data-tone], [data-act] for stateful styling
+   Nothing in the JS writes style attributes, so the cascade
+   is entirely yours.
+   ============================================================ */
+
+/* ── Moodline skin (Design-mode mockup 044729fe, variant 2a) ──
+   Three brand palettes; <html data-theme=""> switches them.
+   Dark-only by design (mockup ships no light mode).            */
+:root, :root[data-theme="moodline"] {
+  color-scheme: dark;
+  --bg: #111;
+  --bg-glow: #201c18;
+  --fg: #efe9e2;
+  --fg-muted: #9a8f83;
+  --panel-bg: #1c1815;
+  --card-bg: #0d0b0a;
+  --inset-bg: #26211c;
+  --terminal-bg: #0d0b0a;
+  --terminal-fg: #b8ada0;
+  --terminal-border: #2e2822;
+  --border: #2b251f;
+  --border-strong: #4a3f35;
+  --accent: #d97757;
+  --accent-rgb: 217,119,87;
+  --accent-soft: rgba(217,119,87,.16);
+  --accent-contrast: #141210;
+  --link: #7cc7d8;
+  --hint: #c98d6e;
+  --danger: #e07a6a;
+  --ok: #3ddc84;
+  --warn: #d9a757;
+  --warn-bg: #241c10;
+  --radius: 13px;
+  --radius-s: 10px;
+  --font: 'Space Grotesk', system-ui, sans-serif;
+  --mono: 'JetBrains Mono', ui-monospace, Consolas, monospace;
+}
+:root[data-theme="phosphor"] {
+  --bg-glow: #0c1710; --fg: #dff2e6; --fg-muted: #7fa290;
+  --panel-bg: #121a16; --card-bg: #050908; --inset-bg: #1a241f;
+  --terminal-bg: #050908; --terminal-fg: #9dc0ae; --terminal-border: #1d2c25;
+  --border: #21312a; --border-strong: #35493f;
+  --accent: #3ddc84; --accent-rgb: 61,220,132; --accent-soft: rgba(61,220,132,.14);
+  --accent-contrast: #06130c; --link: #57c7ff; --hint: #6fcf9a;
+  --radius: 9px; --radius-s: 7px;
+}
+:root[data-theme="mojibar"] {
+  --bg-glow: #191330; --fg: #ece9f7; --fg-muted: #8f89a8;
+  --panel-bg: #1c1930; --card-bg: #0e0c18; --inset-bg: #262143;
+  --terminal-bg: #0e0c18; --terminal-fg: #a29bc4; --terminal-border: #262146;
+  --border: #2c2745; --border-strong: #453e6b;
+  --accent: #a78bfa; --accent-rgb: 167,139,250; --accent-soft: rgba(167,139,250,.16);
+  --accent-contrast: #14121c; --link: #67e8f9; --hint: #c4b5fd;
+  --radius: 15px; --radius-s: 12px;
+}
+@media (prefers-color-scheme: dark) { :root { } } /* skin owns the palette in both schemes */
+
+body { background: radial-gradient(120% 90% at 50% 0%, var(--bg-glow) 0%, var(--bg) 60%) fixed var(--bg); }
+
+@keyframes stagePulse {
+  0%,100% { box-shadow: 0 0 0 0 rgba(var(--accent-rgb),.45); }
+  50%     { box-shadow: 0 0 0 7px rgba(var(--accent-rgb),0); }
+}
+
+/* masthead → brand row */
+.masthead { display: flex; align-items: center; gap: 12px; flex-wrap: wrap; }
+.masthead__logo { flex-shrink: 0; }
+.masthead__title { font-family: var(--font); font-weight: 700; letter-spacing: -0.2px; }
+.masthead__brandtext { flex: 1; min-width: 220px; }
+.masthead__tagline { color: var(--fg-muted); font-family: var(--font); font-size: var(--fs-s); }
+.masthead__hint { flex-basis: 100%; }
+.masthead__theme { margin-left: auto; display: flex; align-items: center; gap: 6px; font-size: var(--fs-s); color: var(--fg-muted); }
+.masthead__theme select {
+  font: inherit; color: var(--fg); background: var(--panel-bg);
+  border: 1px solid var(--border); border-radius: 999px; padding: 6px 12px; cursor: pointer;
+}
+
+/* terminal card: scrollback + bar */
+.bar-section__terminal {
+  background: var(--terminal-bg); border: 1px solid var(--terminal-border);
+  border-radius: 14px; padding: 12px 14px 10px;
+}
+.bar-section__history {
+  font-family: var(--mono); font-size: 11px; line-height: 1.75; color: var(--fg-muted);
+  -webkit-mask-image: linear-gradient(to bottom, transparent 0%, black 85%);
+  mask-image: linear-gradient(to bottom, transparent 0%, black 85%);
+}
+.bar-section__history .p { color: var(--accent); }
+.bar-section__history .t { color: var(--terminal-fg); }
+.bar-section__sep { height: 1px; background: var(--terminal-border); margin: 8px 0 10px; }
+.bar { background: transparent; border: none; padding: 0; min-height: 2.6rem; color: var(--terminal-fg); }
+.bar__slot { border-radius: 7px; padding: 5px 6px; }
+.bar__slot:hover { background: var(--accent-soft); color: var(--fg); }
+.bar__slot--flex { border-color: var(--border-strong); }
+
+/* buttons → pills; primary = accent pill (mockup Install) */
+.btn { border-radius: 999px; padding: 0.3rem 0.85rem; }
+.btn--primary { background: var(--accent); border-color: var(--accent); color: var(--accent-contrast); font-weight: 700; }
+.btn:active { transform: scale(.96); }
+
+/* panels/cards */
+.panel, .reservoir__group, .staging__card { border-radius: var(--radius); }
+.hovercard { border-radius: var(--radius); border-color: var(--border-strong); background: var(--panel-bg); }
+.hovercard__uri { color: var(--link); }
+.staging__uri-text { color: var(--link); }
+
+/* reservoir cells: 44px mockup cells */
+.reservoir__glyph {
+  min-width: 44px; min-height: 40px; display: inline-flex; align-items: center; justify-content: center;
+  font-size: 19px; border-radius: var(--radius-s); background: var(--card-bg); border-color: var(--terminal-border);
+}
+.reservoir__glyph[data-selected="true"] { border-color: var(--accent); background: var(--accent-soft); }
+.reservoir__ramp { background: var(--card-bg); border-color: var(--terminal-border); border-radius: var(--radius-s); }
+.reservoir__ramp-stops { font-size: 18px; }
+
+/* staging: dashed drop-zone + pulsing staged glyph */
+.staging__card { border-style: dashed; border-color: var(--border-strong); background: var(--panel-bg); }
+.staging__card[data-active="true"] { border-style: solid; border-color: var(--accent); box-shadow: none; }
+.staging__card[data-active="true"] .staging__glyphs {
+  display: inline-flex; align-items: center; justify-content: center;
+  min-width: 38px; min-height: 38px; border-radius: var(--radius-s);
+  background: var(--card-bg); border: 1px solid var(--accent);
+  animation: stagePulse 1.6s ease-in-out infinite;
+}
+.staging__empty { color: var(--fg-muted); }
+.staging__warning, .staging__suggest { color: var(--hint); border-color: var(--hint); background: var(--inset-bg); }
+
+.actions__item, .quicklaunch__item { border-radius: var(--radius-s); }
+a { color: var(--link); }
+.log__hash { color: var(--accent); }
+</style>
+</head>
+<body>
+
+<header class="masthead">
+  <svg class="masthead__logo" width="36" height="36" viewBox="0 0 34 34" aria-hidden="true"><rect width="34" height="34" rx="9" fill="var(--accent)"></rect><circle cx="12" cy="13.5" r="2" fill="var(--accent-contrast)"></circle><circle cx="22" cy="13.5" r="2" fill="var(--accent-contrast)"></circle><path d="M11 19.5c1.8 2.5 4 3.6 6 3.6s4.2-1.1 6-3.6" stroke="var(--accent-contrast)" stroke-width="2.4" fill="none" stroke-linecap="round"></path></svg>
+  <div class="masthead__brandtext">
+    <h1 class="masthead__title">Moodline</h1>
+    <p class="masthead__tagline">statuslines with feelings &mdash; stage &middot; commit &middot; push</p>
+  </div>
+  <label class="masthead__theme">skin
+    <select id="theme-select" aria-label="brand skin">
+      <option value="moodline">Moodline &middot; warm clay</option>
+      <option value="phosphor">Phosphor &middot; terminal green</option>
+      <option value="mojibar">Mojibar &middot; playful violet</option>
+    </select>
+  </label>
+  <p class="masthead__hint">a WYSIWYG bench for claudectl:// actionmoji &mdash; glyphs are blobs, the bar is HEAD, and everything is git if you squint</p>
+</header>
+
+<section class="bar-section" aria-label="Working tree — the statusline (HEAD)">
+  <div class="bar-section__head">
+    <h2 class="bar-section__title">HEAD &mdash; your statusline <span class="bar-section__count" id="bar-count"></span></h2>
+    <button class="btn btn--danger" data-act="reset-hard" title="clears the bar AND the index — no takebacks (well, one confirm)">git reset --hard</button>
+  </div>
+  <div class="bar-section__terminal">
+    <div class="bar-section__history" aria-hidden="true">
+      <div><span class="p">&#10095;</span> claude --resume</div>
+      <div>&#10035; Welcome back to f/dashboard-possibility-space</div>
+      <div>&#9226; Read(statusline/statusline.js)</div>
+      <div>&#9226; Update(statusline.js)&nbsp;&nbsp;&#9083;&nbsp;&nbsp;2 additions, 1 removal</div>
+      <div class="t">&#10035; Thinking&hellip; (esc to interrupt)</div>
+    </div>
+    <div class="bar-section__sep"></div>
+    <div class="bar" id="bar" aria-label="statusline preview"></div>
+  </div>
+  <p class="bar-section__empty" id="bar-empty">HEAD is empty &mdash; an unborn branch. git clone a starter from quicklaunch, or stage a glyph. hover a committed item to see its tooltip + composed URI.</p>
+</section>
+
+<main class="workbench">
+
+  <section class="reservoir" aria-label="Glyph reservoir">
+    <div id="reservoir"></div>
+  </section>
+
+  <section class="staging" aria-label="Staging area — the index">
+    <div class="staging__head">
+      <h2 class="staging__title">the index &mdash; staged drafts</h2>
+    </div>
+    <div class="staging__warning" id="staging-warning" hidden>&#9888; uncommitted actionmoji in the index &mdash; detached HEAD vibes. commit them or they haunt your reflog.</div>
+    <p class="staging__empty" id="staging-empty">index is clean. click a glyph in the reservoir (git add), ctrl+click to stack several onto one draft, or pick a ramp for a gauge.</p>
+    <div id="staging-cards"></div>
+  </section>
+
+  <aside class="sidecar">
+    <section class="actions panel" aria-label="Actions reservoir">
+      <h2 class="panel__title">actions &mdash; wire ONE per card</h2>
+      <p class="panel__hint">click to assign to the active (highlighted) draft. {placeholders} stay literal in the export &mdash; the statusline resolves them at render time.</p>
+      <div class="actions__list" id="actions"></div>
+    </section>
+
+    <section class="quicklaunch panel" aria-label="Quicklaunch starters">
+      <h2 class="panel__title">quicklaunch &mdash; git clone a starter</h2>
+      <p class="panel__hint">prebuilt actionmoji, tooltip + action prewired. lands straight on the bar.</p>
+      <div class="quicklaunch__list" id="quicklaunch"></div>
+    </section>
+
+    <section class="log panel" aria-label="Commit log">
+      <h2 class="panel__title">git log --oneline</h2>
+      <ul class="log__list" id="log-list"></ul>
+      <p class="log__empty" id="log-empty">no commits yet. your history starts when you do.</p>
+    </section>
+  </aside>
+
+</main>
+
+<section class="porcelain">
+
+  <section class="push panel" aria-label="Export — git push">
+    <h2 class="panel__title">git push &mdash; export dashboard.json</h2>
+    <p class="panel__hint">this is the artifact the statusline renders as an extra row. autosaved locally on every change (your reflog); push when you want the file.</p>
+    <div class="staging__warning" id="push-warning" hidden></div>
+    <textarea class="push__json" id="push-json" rows="14" readonly aria-label="exported dashboard.json"></textarea>
+    <div class="push__tools">
+      <button class="btn" data-act="push-copy">copy</button>
+      <a class="btn" id="push-download" download="dashboard.json" href="#">download dashboard.json</a>
+    </div>
+  </section>
+
+  <section class="pull panel" aria-label="Import — git pull">
+    <h2 class="panel__title">git pull &mdash; import dashboard.json</h2>
+    <p class="panel__hint">paste a dashboard.json below. validation runs like a pre-receive hook: bad rows get rejected with reasons.</p>
+    <textarea class="pull__input" id="pull-input" rows="10" aria-label="paste dashboard.json here" placeholder='{"version":1,"row":[...]}'></textarea>
+    <div class="pull__tools">
+      <label class="pull__mode"><input type="radio" name="pull-mode" value="merge" checked> --no-rebase (merge: append to bar)</label>
+      <label class="pull__mode"><input type="radio" name="pull-mode" value="replace"> --force (replace bar)</label>
+      <button class="btn btn--primary" data-act="pull-apply">git pull</button>
+    </div>
+    <div class="pull__errors" id="pull-errors"></div>
+  </section>
+
+</section>
+
+<footer class="footnote">
+  <p>autosave: every change hits localStorage (StateStore) &mdash; refresh-proof, like a reflog. keybinds are stored &amp; exported only; the statusline ignores them for now (context-aware keybind hovers: next phase). GitHub sync: next phase &mdash; see StateStore.loginWithGitHub() / syncRemote() stubs.</p>
+  <p>tooltip physics: the OSC 8 hover tooltip IS the raw URI. any whitespace and VS Code collapses it to the word &quot;Link&quot;; Windows Terminal shows only the first 1024 chars. hence: ASCII 32&ndash;126, + instead of space, always.</p>
+</footer>
+
+<div class="status" id="status" role="status" hidden></div>
+
+<script>
+"use strict";
+/* ============================================================
+   Actionmoji — functionality layer. Small classes, each with a
+   render() method. No inline styles; state is expressed through
+   data-* attributes and [hidden].
+   ============================================================ */
+
+/* ---------------- data: the reservoir ---------------- */
+
+const RAMPS = [
+  /* 5-stop ordered scales */
+  { name: "psychology",   legend: "asleep->mindblown", stops: ["😴","🙂","🤔","🧐","🤯"] },
+  { name: "caffeine",     legend: "milk->zap",         stops: ["🥛","🍵","☕","🥤","⚡"] },
+  { name: "spice",        legend: "ice->volcano",      stops: ["🧊","🌡️","🌶️","🔥","🌋"] },
+  { name: "age",          legend: "baby->wizard",      stops: ["👶","🧒","🧑","🧓","🧙"] },
+  { name: "robot",        legend: "bolt->ufo",         stops: ["🔩","🤖","🦾","🧠","🛸"] },
+  { name: "hearts",       legend: "white->sparkle",    stops: ["🤍","💛","🧡","❤️","💖"] },
+  { name: "weather",      legend: "fair->tornado",     stops: ["🌤️","⛅","🌧️","⛈️","🌪️"] },
+  { name: "velocity",     legend: "walk->rocket",      stops: ["🚶","🚲","🚗","✈️","🚀"] },
+  { name: "moon",         legend: "new->full",         stops: ["🌑","🌒","🌓","🌔","🌕"] },
+  { name: "plant-growth", legend: "seed->forest",      stops: ["🌰","🌱","🌿","🌳","🌲"] },
+  { name: "hatching",     legend: "egg->eagle",        stops: ["🥚","🐣","🐤","🐔","🦅"] },
+  { name: "circles",      legend: "empty->star",       stops: ["○","◐","●","◉","★"] },
+  { name: "bars",         legend: "low->full",         stops: ["▁","▃","▅","▇","█"] },
+  { name: "braille",      legend: "1dot->alldots",     stops: ["⠁","⠃","⠇","⠧","⠿"] },
+  { name: "shade",        legend: "light->solid",      stops: ["░","▒","▓","█","⬛"] },
+  /* invented 5-stop ramps */
+  { name: "payday",       legend: "coin->bank",        stops: ["🪙","💵","💰","💎","🏦"] },
+  { name: "party",        legend: "meh->confetti",     stops: ["😐","🙂","😃","🥳","🎉"] },
+  { name: "alert-level",  legend: "calm->siren",       stops: ["🟢","🟡","🟠","🔴","🚨"] },
+  /* 4-stop model ramps */
+  { name: "medals",       legend: "bronze->trophy",    stops: ["🥉","🥈","🥇","🏆"] },
+  { name: "creatures",    legend: "mouse->elephant",   stops: ["🐁","🐇","🦊","🐘"] },
+  { name: "literary",     legend: "leaf->novel",       stops: ["🍃","📜","🎼","📖"] },
+  { name: "gems",         legend: "rock->diamond",     stops: ["🪨","🔶","🔷","💎"] },
+  { name: "celestial",    legend: "sparkle->sun",      stops: ["✨","⭐","🌟","☀️"] }
+];
+
+const GLYPH_GROUPS = {
+  status:  ["🔋","🪫","⚠️","🔔","📊","⛁","💰","⏱️","🕐","🚦","🧭","🎯","🩺","🧯"],
+  nav:     ["📁","📂","📜","📒","🌳","🔗","⑂","🌐","🐛"],
+  kaomoji: ["(o´ω`o)","(≧▽≦)","(ಠ_ಠ)","¯\\_(ツ)_/¯","(╯°□°)╯︵ ┻━┻","(T_T)","(•_•)","(⌐■_■)","(¬_¬)","(ﾉ◕ヮ◕)ﾉ*:･ﾟ✧","(￣︿￣)","(@_@)"]
+};
+
+const DIVIDERS = ["|","¦","‖","│","┃","┆","┇","║","·","•","∙"];
+
+/* ---------------- data: the actions reservoir ---------------- */
+
+const ACTIONS = [
+  { id: "tip",             label: "Info only",        template: "",                                    hint: "tip verb — the tooltip IS the payload; hover is the feature" },
+  { id: "open-folder",     label: "Open folder",      template: "claudectl://open/{path}" },
+  { id: "open-transcript", label: "Open transcript",  template: "claudectl://open/{transcript_path}" },
+  { id: "copy-session",    label: "Copy session id",  template: "claudectl://copy/{session_id}" },
+  { id: "spawn",           label: "New session here", template: "claudectl://spawn/{project_dir}" },
+  { id: "open-pr",         label: "Open PR",          template: "{pr.url}" },
+  { id: "open-repo",       label: "Open repo",        template: "https://github.com/{owner}/{repo}" }
+];
+
+/* ---------------- data: quicklaunch starters ---------------- */
+
+const STARTERS = [
+  { name: "burn-rate battery",  why: "know when the tank hits E before the model does",
+    item: { glyph: "🔋", tooltip: "5h+38%25+|+burn+4.2%25/h+|+empty+~18:40", action: "" } },
+  { name: "context gauge",      why: "a bars-ramp gauge for context pressure — compact before it compacts you",
+    item: { glyph: "▅", tooltip: "gauge:bars+low->full+context+62%25+|+compact+at+80%25", action: "" } },
+  { name: "1M credit trap",     why: "long-context pricing doubles past 200k input — this yells first",
+    item: { glyph: "⚠️", tooltip: "1M+context+beta:+input+2x+price+past+200k+--+mind+the+meter", action: "" } },
+  { name: "cache thermometer",  why: "prompt cache is money: hot saves 90%, cold burns it",
+    item: { glyph: "🔥", tooltip: "cache+hot+4:12+left+|+cold=full+price+re-read", action: "" } },
+  { name: "buddy pet",          why: "a hatching-ramp tamagotchi that levels with your commits",
+    item: { glyph: "🐣", tooltip: "gauge:hatching+egg->eagle+lvl+2/5+|+feed+it+commits", action: "" } },
+  { name: "staleness clock",    why: "how long since anything happened in this session",
+    item: { glyph: "🕐", tooltip: "last+activity+12m+ago+|+stale+at+30m", action: "" } },
+  { name: "CI status",          why: "red/green at a glance, the PR one confirm away",
+    item: { glyph: "🚦", tooltip: "CI+green+|+main+|+run+4m21s", action: "{pr.url}" } },
+  { name: "git intel",          why: "branch, ahead/behind, staged count — the whole porcelain in one glyph",
+    item: { glyph: "⑂", tooltip: "main+2up1down+|+3+staged+|+REBASE", action: "" } },
+  { name: "transcript button",  why: "jump to this session's raw transcript in one click",
+    item: { glyph: "📜", tooltip: "open+transcript", action: "claudectl://open/{transcript_path}" } }
+];
+
+/* ---------------- utils ---------------- */
+
+const $ = (sel, root) => (root || document).querySelector(sel);
+
+const esc = s => String(s).replace(/[&<>"']/g, c => (
+  { "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" }[c]
+));
+
+/* tooltip charset: ASCII bytes 32-126 ONLY (contract) */
+function asciiOnly(s) {
+  let out = "", dropped = 0;
+  for (const ch of String(s)) {
+    const c = ch.codePointAt(0);
+    if (c >= 32 && c <= 126) out += ch; else dropped++;
+  }
+  return { out, dropped };
+}
+
+/* URI composition rule — the shared contract, verbatim.
+   statusline and claudectl handler MUST agree with this. */
+function composeUri(tooltip, action) {
+  const t = tooltip || "", a = action || "";
+  if (!a) return "claudectl://tip/" + t;                                /* action empty  */
+  if (!t) return a;                                                     /* tooltip empty */
+  return "claudectl://tip/" + t + "/do/" + encodeURIComponent(a);       /* both present  */
+}
+
+function ruleLabel(tooltip, action) {
+  if (!action) return "rule: tip-only — hover no-op, tooltip is the payload";
+  if (!tooltip) return "rule: action-only — URI is the action verbatim";
+  return "rule: tip + /do/ — handler shows Yes/No confirm naming the exact action";
+}
+
+function hash7() {
+  return (Math.random().toString(16) + "0000000").slice(2, 9);
+}
+
+const WT_CUT = 1024;   /* Windows Terminal shows first 1024 chars of the URI */
+const TIP_MAX = 1000;  /* contract: tooltip <= 1000 chars */
+
+/* ---------------- StateStore: ALL persistence goes through here ----------------
+   localStorage today; a remote backend tomorrow. Swap the internals,
+   keep load()/save()/clear() and the app never notices. */
+class StateStore {
+  constructor(key) { this.key = key; }
+  load() {
+    try { return JSON.parse(localStorage.getItem(this.key)); }
+    catch (e) { return null; }
+  }
+  save(state) {
+    try { localStorage.setItem(this.key, JSON.stringify(state)); }
+    catch (e) { /* storage full/blocked: the reflog forgives */ }
+  }
+  clear() {
+    try { localStorage.removeItem(this.key); } catch (e) {}
+  }
+  /* ---- NEXT PHASE: the auth seam. Do not wire UI to these yet. ----
+     loginWithGitHub() would run an OAuth device flow, keep the token
+     in memory (never localStorage), and unlock syncRemote().
+     syncRemote() would push/pull the same JSON blob this class already
+     round-trips — a gist or a repo file — merging by updatedAt. */
+  loginWithGitHub() { throw new Error("next phase: GitHub OAuth device flow"); }
+  syncRemote()      { throw new Error("next phase: remote state sync (gist/repo)"); }
+}
+
+function defaultState() {
+  return {
+    schemaVersion: 1,
+    bar: [],        /* [{type:"button",glyph,tooltip,action,keybind} | {type:"flex",side} | {type:"divider",glyph}] */
+    staging: [],    /* draft cards */
+    log: [],        /* [{hash,msg}] newest LAST (render reverses) */
+    activeCardId: null,
+    seq: 1
+  };
+}
+
+/* ---------------- views ---------------- */
+
+class BarView {
+  constructor(app) { this.app = app; this.el = $("#bar"); }
+  render() {
+    const bar = this.app.state.bar;
+    $("#bar-count").textContent = bar.length ? "(" + bar.length + " object" + (bar.length === 1 ? "" : "s") + " at HEAD)" : "";
+    $("#bar-empty").hidden = bar.length > 0;
+    this.el.innerHTML = bar.map((it, i) => this.slotHtml(it, i)).join("");
+  }
+  slotHtml(it, i) {
+    const tools =
+      '<span class="bar__tools">' +
+      '<button class="bar__tool" data-act="slot-left" data-index="' + i + '" title="interactive rebase: move left">&lsaquo;</button>' +
+      '<button class="bar__tool" data-act="slot-right" data-index="' + i + '" title="interactive rebase: move right">&rsaquo;</button>' +
+      '<button class="bar__tool bar__tool--danger" data-act="slot-revert" data-index="' + i + '" title="git revert: remove from bar">&#10005;</button>' +
+      "</span>";
+    if (it.type === "flex") {
+      const arrows = it.side === "left" ? "&larr;" : it.side === "right" ? "&rarr;" : "&larr;&rarr;";
+      return '<div class="bar__slot bar__slot--flex" data-type="flex" data-side="' + esc(it.side) + '">' +
+        '<span class="bar__flex-label">' + arrows + " flex</span>" + tools +
+        '<div class="hovercard"><div class="hovercard__prose">flex (side: ' + esc(it.side) + ") &mdash; the bar spreads around this. formatting only, no link.</div></div></div>";
+    }
+    if (it.type === "divider") {
+      return '<div class="bar__slot bar__slot--divider" data-type="divider">' +
+        '<span class="bar__glyph">' + esc(it.glyph) + "</span>" + tools +
+        '<div class="hovercard"><div class="hovercard__prose">divider &mdash; formatting only, no link.</div></div></div>';
+    }
+    /* button */
+    const uri = composeUri(it.tooltip, it.action);
+    const prose = (it.tooltip || "").replace(/\+/g, " ");
+    return '<div class="bar__slot bar__slot--button" data-type="button">' +
+      '<span class="bar__glyph">' + esc(it.glyph) + "</span>" + tools +
+      '<div class="hovercard">' +
+      '<div class="hovercard__prose">' + (prose ? esc(prose) : "<em>(no tooltip)</em>") + "</div>" +
+      (it.tooltip ? '<div class="hovercard__raw">raw: ' + esc(it.tooltip) + "</div>" : "") +
+      '<code class="hovercard__uri">' + esc(uri) + "</code>" +
+      (it.keybind ? '<div class="hovercard__kb">keybind: ' + esc(it.keybind) + " (export-only; statusline ignores it — next phase)</div>" : "") +
+      "</div></div>";
+  }
+}
+
+class ReservoirView {
+  constructor(app) { this.app = app; this.el = $("#reservoir"); }
+  render() {
+    const active = this.app.activeCard();
+    const inCard = g => !!(active && active.kind === "glyphs" && active.glyphs.indexOf(g) !== -1);
+    const glyphBtns = (group) => GLYPH_GROUPS[group].map((g, i) =>
+      '<button class="reservoir__glyph" data-act="glyph" data-group="' + group + '" data-idx="' + i + '" data-selected="' + inCard(g) + '" title="click: stage as new draft (git add) · ctrl+click: toggle on active draft">' + esc(g) + "</button>"
+    ).join("");
+    this.el.innerHTML =
+      '<details class="reservoir__group" open><summary class="reservoir__summary">RAMPS &mdash; ordered scales</summary>' +
+      '<p class="reservoir__note">pick a ramp &rarr; stages a gauge (tooltip pre-lists the scale; exported glyph = the needle stop you choose)</p>' +
+      '<div class="reservoir__items">' +
+      RAMPS.map(r =>
+        '<button class="reservoir__ramp" data-act="ramp" data-ramp="' + esc(r.name) + '" title="' + esc(r.legend) + '">' +
+        '<span class="reservoir__ramp-stops">' + esc(r.stops.join("")) + "</span>" +
+        '<span class="reservoir__ramp-name">' + esc(r.name) + " (" + r.stops.length + ")</span></button>"
+      ).join("") +
+      "</div></details>" +
+      '<details class="reservoir__group" open><summary class="reservoir__summary">STATUS</summary><div class="reservoir__items">' + glyphBtns("status") + "</div></details>" +
+      '<details class="reservoir__group" open><summary class="reservoir__summary">NAV / FILES</summary><div class="reservoir__items">' + glyphBtns("nav") + "</div></details>" +
+      '<details class="reservoir__group"><summary class="reservoir__summary">KAOMOJI</summary><div class="reservoir__items">' + glyphBtns("kaomoji") + "</div></details>" +
+      '<details class="reservoir__group" open><summary class="reservoir__summary">DIVIDERS / FORMAT</summary>' +
+      '<p class="reservoir__note">these skip the index &mdash; straight onto the bar (working tree)</p>' +
+      '<div class="reservoir__items">' +
+      DIVIDERS.map((d, i) => '<button class="reservoir__glyph" data-act="divider" data-idx="' + i + '" title="insert divider">' + esc(d) + "</button>").join("") +
+      '<button class="reservoir__glyph" data-act="flex" data-side="both" title="flex: bar spreads around it">&larr;&rarr; flex</button>' +
+      '<button class="reservoir__glyph" data-act="flex" data-side="left" title="flex-left">&larr; flex</button>' +
+      '<button class="reservoir__glyph" data-act="flex" data-side="right" title="flex-right">flex &rarr;</button>' +
+      "</div></details>";
+  }
+}
+
+class StagingView {
+  constructor(app) { this.app = app; this.el = $("#staging-cards"); }
+  render() {
+    const st = this.app.state;
+    $("#staging-warning").hidden = st.staging.length === 0;
+    $("#staging-empty").hidden = st.staging.length > 0;
+    this.el.innerHTML = st.staging.map(c => this.cardHtml(c)).join("");
+    st.staging.forEach(c => {
+      const cardEl = this.el.querySelector('[data-id="' + c.id + '"].staging__card');
+      if (cardEl) this.updateDerived(cardEl, c);
+    });
+  }
+  cardHtml(c) {
+    const active = c.id === this.app.state.activeCardId;
+    const glyphs = this.app.cardGlyph(c);
+    const name = c.kind === "gauge" ? "gauge: " + c.ramp.name : "draft " + c.id;
+    let stopsHtml = "";
+    if (c.kind === "gauge") {
+      stopsHtml = '<div class="staging__stops" role="radiogroup" aria-label="gauge needle">' +
+        c.ramp.stops.map((s, i) =>
+          '<button class="staging__stop" data-act="gauge-stop" data-id="' + c.id + '" data-stop="' + i + '" data-selected="' + (i === c.stop) + '" title="stop ' + (i + 1) + "/" + c.ramp.stops.length + '">' + esc(s) + "</button>"
+        ).join("") +
+        '</div><span class="field__hint">exported glyph = the selected stop (the needle). scale: ' + esc(c.ramp.legend) + "</span>";
+    }
+    return '<article class="staging__card" data-id="' + c.id + '" data-active="' + active + '">' +
+      '<header class="staging__card-head">' +
+      '<button class="staging__select" data-act="card-select" data-id="' + c.id + '" title="make this the active draft">' +
+      '<span class="staging__glyphs">' + (glyphs ? esc(glyphs) : "&#9633;") + "</span>" +
+      '<span class="staging__card-name">' + esc(name) + "</span></button>" +
+      '<button class="btn btn--ghost" data-act="card-remove" data-id="' + c.id + '" title="git rm --cached: drop this draft">&#10005;</button>' +
+      "</header>" +
+      stopsHtml +
+      '<label class="field"><span class="field__label">tooltip &mdash; hover prose. ASCII 32&ndash;126 only, no raw spaces (whitespace collapses the VS Code hover to &quot;Link&quot;) &mdash; use + . - _ | as separators</span>' +
+      '<textarea class="field__input staging__tooltip" data-input="tooltip" data-id="' + c.id + '" maxlength="' + TIP_MAX + '" rows="2">' + esc(c.tooltip) + "</textarea></label>" +
+      '<div class="staging__meta"><span class="staging__count"></span><span class="staging__cut"></span></div>' +
+      '<div class="staging__suggest" hidden>raw spaces detected &mdash; suggestion: <code class="staging__suggest-text"></code> ' +
+      '<button class="btn btn--mini" data-act="fix-spaces" data-id="' + c.id + '">apply +&nbsp;fix</button></div>' +
+      '<label class="field"><span class="field__label">action &mdash; ONE per card, from the actions reservoir (or hand-edit; {placeholders} stay literal, the statusline resolves them)</span>' +
+      '<input type="text" class="field__input staging__action" data-input="action" data-id="' + c.id + '" value="' + esc(c.action) + '"></label>' +
+      '<label class="field"><span class="field__label">keybind &mdash; freeform; stored &amp; exported only. context-aware keybind hovers: next phase</span>' +
+      '<textarea class="field__input staging__keybind" data-input="keybind" data-id="' + c.id + '" rows="1">' + esc(c.keybind) + "</textarea></label>" +
+      '<div class="staging__uri"><span class="staging__rule"></span><code class="staging__uri-text"></code></div>' +
+      '<footer class="staging__card-foot">' +
+      '<button class="btn btn--primary" data-act="card-commit" data-id="' + c.id + '">git commit</button>' +
+      "</footer></article>";
+  }
+  /* cheap partial update: keeps textarea focus while typing */
+  updateDerived(cardEl, c) {
+    const count = $(".staging__count", cardEl);
+    count.textContent = c.tooltip.length + "/" + TIP_MAX + " chars";
+    count.className = "staging__count" + (c.tooltip.length >= TIP_MAX ? " staging__count--over" : "");
+    const uri = composeUri(c.tooltip, c.action);
+    $(".staging__cut", cardEl).textContent = "URI " + uri.length + " chars" +
+      (uri.length > WT_CUT ? " — PAST the WT display cut @" + WT_CUT + "!" : " · WT display cut @" + WT_CUT);
+    const hasSpace = c.tooltip.indexOf(" ") !== -1;
+    const sug = $(".staging__suggest", cardEl);
+    sug.hidden = !hasSpace;
+    if (hasSpace) $(".staging__suggest-text", cardEl).textContent = c.tooltip.replace(/ /g, "+");
+    $(".staging__rule", cardEl).textContent = ruleLabel(c.tooltip, c.action);
+    $(".staging__uri-text", cardEl).textContent = uri;
+  }
+}
+
+class ActionsView {
+  constructor(app) { this.app = app; this.el = $("#actions"); }
+  render() {
+    const active = this.app.activeCard();
+    this.el.innerHTML = ACTIONS.map(a => {
+      const sel = !!(active && this.app.cardActionId(active) === a.id);
+      return '<button class="actions__item" data-act="action-pick" data-action-id="' + a.id + '" data-selected="' + sel + '">' +
+        '<span class="actions__label">' + esc(a.label) + "</span>" +
+        '<code class="actions__template">' + (a.template ? esc(a.template) : "(no action — tip verb; " + esc(a.hint) + ")") + "</code></button>";
+    }).join("");
+  }
+}
+
+class QuicklaunchView {
+  constructor(app) { this.app = app; this.el = $("#quicklaunch"); }
+  render() {
+    this.el.innerHTML = STARTERS.map((s, i) =>
+      '<div class="quicklaunch__item">' +
+      '<button class="btn quicklaunch__install" data-act="starter" data-idx="' + i + '" title="git clone: install to bar">' + esc(s.item.glyph) + " " + esc(s.name) + "</button>" +
+      '<span class="quicklaunch__why">' + esc(s.why) + "</span></div>"
+    ).join("");
+  }
+}
+
+class LogView {
+  constructor(app) { this.app = app; this.el = $("#log-list"); }
+  render() {
+    const log = this.app.state.log;
+    $("#log-empty").hidden = log.length > 0;
+    this.el.innerHTML = log.slice().reverse().map(e =>
+      '<li class="log__entry"><span class="log__hash">' + esc(e.hash) + "</span>" + esc(e.msg) + "</li>"
+    ).join("");
+  }
+}
+
+class PushView {
+  constructor(app) { this.app = app; this.blobUrl = null; }
+  render() {
+    const st = this.app.state;
+    const json = this.app.exportJson();
+    $("#push-json").value = json;
+    const warn = $("#push-warning");
+    if (st.staging.length > 0) {
+      warn.hidden = false;
+      warn.textContent = "⚠ " + st.staging.length + " draft(s) still in the index — they are NOT in this push. detached HEAD vibes.";
+    } else {
+      warn.hidden = true;
+    }
+    if (this.blobUrl) URL.revokeObjectURL(this.blobUrl);
+    this.blobUrl = URL.createObjectURL(new Blob([json], { type: "application/json" }));
+    $("#push-download").href = this.blobUrl;
+  }
+}
+
+class PullView {
+  constructor(app) { this.app = app; }
+  render() { /* static panel; errors are written by App.pullApply */ }
+}
+
+/* ---------------- the app ---------------- */
+
+class App {
+  constructor() {
+    this.store = new StateStore("actionmoji.v1");
+    const loaded = this.store.load();
+    this.state = (loaded && loaded.schemaVersion === 1 && Array.isArray(loaded.bar)) ? loaded : defaultState();
+    this.views = [
+      new BarView(this), new ReservoirView(this), new StagingView(this),
+      new ActionsView(this), new QuicklaunchView(this), new LogView(this),
+      new PushView(this), new PullView(this)
+    ];
+    this.statusTimer = null;
+    this.bindEvents();
+    this.renderAll();
+  }
+
+  /* every mutation funnels through here: change -> autosave ("reflog") -> render */
+  mutate(fn, opts) {
+    fn(this.state);
+    this.store.save(this.state);
+    if (!opts || !opts.skipRender) this.renderAll();
+  }
+
+  renderAll() { this.views.forEach(v => v.render()); }
+
+  toast(msg, tone) {
+    const el = $("#status");
+    el.textContent = msg;
+    el.dataset.tone = tone || "ok";
+    el.hidden = false;
+    clearTimeout(this.statusTimer);
+    this.statusTimer = setTimeout(() => { el.hidden = true; }, 4000);
+  }
+
+  /* -------- card helpers -------- */
+  activeCard() {
+    return this.state.staging.find(c => c.id === this.state.activeCardId) || null;
+  }
+  cardById(id) { return this.state.staging.find(c => c.id === id) || null; }
+  cardGlyph(c) {
+    return c.kind === "gauge" ? c.ramp.stops[c.stop] : c.glyphs.join("");
+  }
+  cardActionId(c) {
+    if (!c.action) return "tip";
+    const hit = ACTIONS.find(a => a.template && a.template === c.action);
+    return hit ? hit.id : "custom";
+  }
+  newCard(fields) {
+    const id = "c" + this.state.seq++;
+    const card = Object.assign(
+      { id, kind: "glyphs", glyphs: [], ramp: null, stop: 0, tooltip: "", action: "", keybind: "" },
+      fields
+    );
+    this.state.staging.push(card);
+    this.state.activeCardId = id;
+    return card;
+  }
+
+  /* -------- reservoir: git add -------- */
+  pickGlyph(group, idx, multi) {
+    const g = GLYPH_GROUPS[group][idx];
+    if (g === undefined) return;
+    this.mutate(st => {
+      const active = this.activeCard();
+      if (multi && active && active.kind === "glyphs") {
+        const at = active.glyphs.indexOf(g);
+        if (at === -1) active.glyphs.push(g); else active.glyphs.splice(at, 1); /* ctrl+click toggles */
+      } else if (multi && active && active.kind === "gauge") {
+        this.toast("gauges are sealed scales — start a glyph draft for freeform stacking", "warn");
+      } else {
+        this.newCard({ glyphs: [g] });
+      }
+    });
+  }
+  pickRamp(name) {
+    const r = RAMPS.find(x => x.name === name);
+    if (!r) return;
+    this.mutate(st => {
+      const stop = Math.floor((r.stops.length - 1) / 2);
+      this.newCard({
+        kind: "gauge", ramp: { name: r.name, legend: r.legend, stops: r.stops.slice() }, stop,
+        tooltip: "gauge:" + r.name + "+" + r.legend + "+stop+" + (stop + 1) + "/" + r.stops.length
+      });
+    });
+    this.toast("gauge staged — tooltip pre-lists the scale (ASCII legend; emoji can't live in tooltips)", "ok");
+  }
+
+  /* -------- staging edits -------- */
+  onInput(el) {
+    const kind = el.dataset.input;
+    const c = this.cardById(el.dataset.id);
+    if (!c) return;
+    if (kind === "tooltip") {
+      const { out, dropped } = asciiOnly(el.value);
+      if (dropped) {
+        el.value = out;
+        this.toast(dropped + " char(s) stripped — tooltip is ASCII bytes 32-126 only (emoji live in the glyph, not the tooltip)", "warn");
+      }
+      c.tooltip = el.value;
+    } else if (kind === "action") {
+      c.action = el.value;
+    } else if (kind === "keybind") {
+      c.keybind = el.value;
+    }
+    this.store.save(this.state); /* autosave without re-render: keep focus */
+    const cardEl = el.closest(".staging__card");
+    const sv = this.views.find(v => v instanceof StagingView);
+    if (cardEl) sv.updateDerived(cardEl, c);
+  }
+  fixSpaces(id) {
+    this.mutate(st => {
+      const c = this.cardById(id);
+      if (c) c.tooltip = c.tooltip.replace(/ /g, "+");
+    });
+    this.toast("spaces -> + applied. the hover survives.", "ok");
+  }
+  pickAction(actionId) {
+    const a = ACTIONS.find(x => x.id === actionId);
+    const c = this.activeCard();
+    if (!c) { this.toast("nothing staged — git add a glyph before wiring an action", "warn"); return; }
+    this.mutate(st => { c.action = a ? a.template : ""; });
+  }
+  gaugeStop(id, stop) {
+    this.mutate(st => {
+      const c = this.cardById(id);
+      if (c && c.kind === "gauge") {
+        c.stop = stop;
+        /* refresh the pre-listed scale position if the user hasn't rewritten it */
+        c.tooltip = c.tooltip.replace(/\+stop\+\d+\/\d+/, "+stop+" + (stop + 1) + "/" + c.ramp.stops.length);
+      }
+    });
+  }
+  removeCard(id) {
+    this.mutate(st => {
+      st.staging = st.staging.filter(c => c.id !== id);
+      if (st.activeCardId === id) st.activeCardId = st.staging.length ? st.staging[st.staging.length - 1].id : null;
+    });
+    this.toast("git rm --cached — draft dropped from the index", "ok");
+  }
+  selectCard(id) {
+    this.mutate(st => { st.activeCardId = id; });
+  }
+
+  /* -------- commit: index -> HEAD -------- */
+  commitCard(id) {
+    const c = this.cardById(id);
+    if (!c) return;
+    if (c.tooltip.indexOf(" ") !== -1) {
+      this.toast("commit blocked: tooltip has raw spaces — VS Code would collapse the hover to \"Link\". apply the + fix.", "err");
+      return;
+    }
+    const glyph = this.cardGlyph(c);
+    if (!glyph) { this.toast("commit blocked: empty glyph — nothing to render on the bar", "err"); return; }
+    const name = c.kind === "gauge" ? c.ramp.name + " gauge" : "";
+    const def = "feat(bar): add " + glyph + (name ? " " + name : "");
+    const msg = window.prompt("commit message (optional — OK for default):", def);
+    if (msg === null) { this.toast("commit aborted — the index keeps its vibes", "warn"); return; }
+    this.mutate(st => {
+      st.bar.push({ type: "button", glyph, tooltip: c.tooltip, action: c.action, keybind: c.keybind });
+      st.staging = st.staging.filter(x => x.id !== id);
+      if (st.activeCardId === id) st.activeCardId = st.staging.length ? st.staging[st.staging.length - 1].id : null;
+      st.log.push({ hash: hash7(), msg: msg || def });
+      if (st.log.length > 200) st.log = st.log.slice(-200);
+    });
+  }
+
+  /* -------- bar ops -------- */
+  insertDivider(idx) {
+    const d = DIVIDERS[idx];
+    if (d === undefined) return;
+    this.mutate(st => {
+      st.bar.push({ type: "divider", glyph: d });
+      st.log.push({ hash: hash7(), msg: "style(bar): insert divider " + d });
+    });
+  }
+  insertFlex(side) {
+    this.mutate(st => {
+      st.bar.push({ type: "flex", side });
+      st.log.push({ hash: hash7(), msg: "style(bar): insert flex(" + side + ")" });
+    });
+  }
+  moveSlot(i, delta) {
+    this.mutate(st => {
+      const j = i + delta;
+      if (j < 0 || j >= st.bar.length) return;
+      const [it] = st.bar.splice(i, 1);
+      st.bar.splice(j, 0, it);
+    });
+  }
+  revertSlot(i) {
+    this.mutate(st => {
+      const it = st.bar.splice(i, 1)[0];
+      if (!it) return;
+      const what = it.type === "button" ? it.glyph : it.type === "flex" ? "flex(" + it.side + ")" : "divider " + it.glyph;
+      st.log.push({ hash: hash7(), msg: "revert: remove " + what });
+    });
+  }
+  resetHard() {
+    if (!window.confirm("git reset --hard\n\nThis clears the bar (working tree) AND the index (staged drafts).\nThe commit log survives, like it always does.\n\nProceed?")) return;
+    this.mutate(st => {
+      st.bar = [];
+      st.staging = [];
+      st.activeCardId = null;
+      st.log.push({ hash: hash7(), msg: "reset: --hard (bar + index cleared)" });
+    });
+    this.toast("HEAD is now empty. very zen.", "ok");
+  }
+
+  /* -------- quicklaunch: git clone -------- */
+  installStarter(idx) {
+    const s = STARTERS[idx];
+    if (!s) return;
+    this.mutate(st => {
+      st.bar.push({ type: "button", glyph: s.item.glyph, tooltip: s.item.tooltip, action: s.item.action, keybind: "" });
+      st.log.push({ hash: hash7(), msg: "clone(starter): " + s.item.glyph + " " + s.name });
+    });
+    this.toast("cloned: " + s.name + " — hover it on the bar to see the composed URI", "ok");
+  }
+
+  /* -------- export: git push -------- */
+  exportJson() {
+    const row = this.state.bar.map(it => {
+      if (it.type === "flex") return { type: "flex", side: it.side };
+      if (it.type === "divider") return { type: "divider", glyph: it.glyph };
+      const o = { type: "button", glyph: it.glyph, tooltip: it.tooltip || "", action: it.action || "" };
+      if (it.keybind) o.keybind = it.keybind;
+      return o;
+    });
+    return JSON.stringify({ version: 1, row }, null, 2);
+  }
+  copyExport() {
+    const text = $("#push-json").value;
+    const done = () => this.toast("copied. paste it where dashboards are born.", "ok");
+    const fallback = () => {
+      const ta = $("#push-json");
+      ta.focus(); ta.select();
+      try { document.execCommand("copy"); done(); }
+      catch (e) { this.toast("copy failed — select the JSON and copy manually", "err"); }
+    };
+    if (navigator.clipboard && navigator.clipboard.writeText) {
+      navigator.clipboard.writeText(text).then(done, fallback);
+    } else fallback();
+  }
+
+  /* -------- import: git pull -------- */
+  pullApply() {
+    const out = $("#pull-errors");
+    out.className = "pull__errors";
+    const text = $("#pull-input").value.trim();
+    if (!text) { out.textContent = "nothing to pull — paste a dashboard.json first."; return; }
+    const res = this.validateDashboard(text);
+    if (res.errors.length) {
+      out.textContent = "pre-receive hook declined:\n" + res.errors.map(e => "  ! " + e).join("\n");
+      return;
+    }
+    const mode = (document.querySelector('input[name="pull-mode"]:checked') || {}).value || "merge";
+    this.mutate(st => {
+      st.bar = mode === "replace" ? res.row : st.bar.concat(res.row);
+      st.log.push({ hash: hash7(), msg: "pull: " + (mode === "replace" ? "force-replaced bar with " : "merged ") + res.row.length + " item(s)" });
+    });
+    out.className = "pull__errors pull__ok";
+    out.textContent = "pulled " + res.row.length + " item(s) (" + mode + ")." + (res.warnings.length ? "\nwarnings:\n" + res.warnings.map(w => "  ~ " + w).join("\n") : "");
+  }
+  validateDashboard(text) {
+    const errors = [], warnings = [], row = [];
+    let obj;
+    try { obj = JSON.parse(text); }
+    catch (e) { return { errors: ["not JSON: " + e.message], warnings, row }; }
+    if (!obj || typeof obj !== "object") { errors.push("root must be an object"); return { errors, warnings, row }; }
+    if (obj.version !== 1) errors.push('version must be 1 (got ' + JSON.stringify(obj.version) + ")");
+    if (!Array.isArray(obj.row)) { errors.push('"row" must be an array'); return { errors, warnings, row }; }
+    obj.row.forEach((it, i) => {
+      const at = "row[" + i + "]";
+      if (!it || typeof it !== "object") { errors.push(at + ": not an object"); return; }
+      if (it.type === "flex") {
+        const side = it.side === undefined ? "both" : it.side;   /* base schema {"type":"flex"} => side both */
+        if (["both", "left", "right"].indexOf(side) === -1) { errors.push(at + ': flex side must be "both"|"left"|"right"'); return; }
+        row.push({ type: "flex", side });
+      } else if (it.type === "divider") {
+        if (typeof it.glyph !== "string" || !it.glyph) { errors.push(at + ": divider needs a non-empty glyph"); return; }
+        row.push({ type: "divider", glyph: it.glyph });
+      } else if (it.type === "button") {
+        if (typeof it.glyph !== "string" || !it.glyph) { errors.push(at + ": button needs a non-empty glyph"); return; }
+        const tooltip = it.tooltip === undefined ? "" : it.tooltip;
+        const action = it.action === undefined ? "" : it.action;
+        const keybind = it.keybind === undefined ? "" : it.keybind;
+        if (typeof tooltip !== "string" || typeof action !== "string" || typeof keybind !== "string") { errors.push(at + ": tooltip/action/keybind must be strings"); return; }
+        if (tooltip.length > TIP_MAX) { errors.push(at + ": tooltip over " + TIP_MAX + " chars"); return; }
+        const { dropped } = asciiOnly(tooltip);
+        if (dropped) { errors.push(at + ": tooltip has " + dropped + " char(s) outside ASCII 32-126"); return; }
+        if (tooltip.indexOf(" ") !== -1) { errors.push(at + ": tooltip has raw spaces (hover would collapse to \"Link\")"); return; }
+        row.push({ type: "button", glyph: it.glyph, tooltip, action, keybind });
+      } else {
+        errors.push(at + ": unknown type " + JSON.stringify(it.type));
+      }
+    });
+    if (errors.length === 0 && row.length === 0) warnings.push("row is empty — a very minimalist dashboard");
+    return { errors, warnings, row };
+  }
+
+  /* -------- events -------- */
+  bindEvents() {
+    document.addEventListener("click", e => {
+      const el = e.target.closest("[data-act]");
+      if (!el) return;
+      const act = el.dataset.act;
+      switch (act) {
+        case "glyph":        this.pickGlyph(el.dataset.group, Number(el.dataset.idx), e.ctrlKey || e.metaKey); break;
+        case "ramp":         this.pickRamp(el.dataset.ramp); break;
+        case "divider":      this.insertDivider(Number(el.dataset.idx)); break;
+        case "flex":         this.insertFlex(el.dataset.side); break;
+        case "action-pick":  this.pickAction(el.dataset.actionId); break;
+        case "card-select":  this.selectCard(el.dataset.id); break;
+        case "card-remove":  this.removeCard(el.dataset.id); break;
+        case "card-commit":  this.commitCard(el.dataset.id); break;
+        case "gauge-stop":   this.gaugeStop(el.dataset.id, Number(el.dataset.stop)); break;
+        case "fix-spaces":   this.fixSpaces(el.dataset.id); break;
+        case "slot-left":    this.moveSlot(Number(el.dataset.index), -1); break;
+        case "slot-right":   this.moveSlot(Number(el.dataset.index), 1); break;
+        case "slot-revert":  this.revertSlot(Number(el.dataset.index)); break;
+        case "reset-hard":   this.resetHard(); break;
+        case "starter":      this.installStarter(Number(el.dataset.idx)); break;
+        case "push-copy":    this.copyExport(); break;
+        case "pull-apply":   this.pullApply(); break;
+      }
+    });
+    document.addEventListener("input", e => {
+      const el = e.target;
+      if (el.dataset && el.dataset.input) this.onInput(el);
+    });
+  }
+}
+
+/* boot */
+window.actionmoji = new App();
+
+/* ── Moodline skin switcher (Design-mode pass) ── */
+(function () {
+  var sel = document.getElementById("theme-select");
+  if (!sel) return;
+  var saved = "moodline";
+  try { saved = localStorage.getItem("moodline.theme") || "moodline"; } catch (e) {}
+  document.documentElement.setAttribute("data-theme", saved);
+  sel.value = saved;
+  sel.addEventListener("change", function () {
+    document.documentElement.setAttribute("data-theme", sel.value);
+    try { localStorage.setItem("moodline.theme", sel.value); } catch (e) {}
+  });
+})();
+</script>
+</body>
+</html>
