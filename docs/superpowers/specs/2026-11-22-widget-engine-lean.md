@@ -25,8 +25,8 @@ output.
 | D3 | `cluster` is a documentation label only. The engine ignores it. |
 | D4 | A widget may bind several sensors. There is no one-sensor rule. |
 | D5 | **Hiding is a manifest toggle, `hideAbsent`, and it defaults to off.** With it off, a widget with no data shows the **placeholder**: a single animated glyph that means "collecting data" (§5). The webapp exposes both the toggle and the placeholder. |
-| D6 | **No smart layout.** The engine never pads, collapses, reflows or drops anything. Separators come from the layout, and no widget owns one. |
-| D7 | **Widgets declare their width,** in terminal cells, and may declare as much as their content needs. Content wider than its width is cut to `width − 1` cells and ends with a 1-cell ellipsis (`…`). The webapp enforces each row's budget while the user builds the bar. |
+| D6 | **No smart layout.** The engine never collapses, reflows or drops anything, and it pads only to fill a widget's declared width (D7). Separators come from the layout, and no widget owns one. |
+| D7 | **Widgets declare their width,** in terminal cells, and may declare as much as their content needs. A widget always occupies exactly its width. Shorter content is padded with trailing spaces, so positions further along the row stay fixed. Content wider than its width is cut to `width − 1` cells and ends with a 1-cell ellipsis (`…`). The webapp enforces each row's budget while the user builds the bar. |
 | D8 | Keep this spec lean: anything not needed now is listed in §8. |
 
 ## 3. Manifest
@@ -76,7 +76,7 @@ both sides of it still print. The webapp checks the budget with
 ## 5. Rendering one widget
 
 - **Cells, not characters.** Width is measured in terminal cells. Emoji and East Asian wide characters count as 2. The engine and the webapp must share one cell-width function.
-- **Overflow:** content wider than `width` is cut to `width − 1` cells and ends with `…`.
+- **Exact width:** every rendered widget, the placeholder included, occupies exactly `width` cells. Shorter content is padded on the right with spaces. Content wider than `width` is cut to `width − 1` cells and ends with `…`.
 - **No data:** a widget is *absent* when every sensor it binds is absent. An absent widget renders the placeholder's current frame, or nothing when `hideAbsent` is on. If only some of its sensors are absent, the template fragments that use them drop out (the August draft's "drop the whole fragment" rule).
 - **Animation:** the frame is `frames[floor(now / 1 s) mod frames.length]`, so the glyph moves forward each time the bar redraws.
 - **Errors:** a widget whose rendering throws is treated as absent.
@@ -88,7 +88,8 @@ that window has data, the widget shows the placeholder.
 
 Tests pin this contract, not today's output. They cover: slot ordering,
 separator insertion (none at the row edges, and still printed around a
-hidden widget), cell-width measurement including emoji, overflow truncation,
+hidden widget), cell-width measurement including emoji, padding short content to width,
+overflow truncation,
 the placeholder and its frame selection, the `hideAbsent` toggle,
 partial-absence fragment dropping, multi-sensor templates, and the budget
 arithmetic shared with the webapp.
@@ -121,6 +122,5 @@ assumptions A1, A3 and A5.
 ## 9. Assumed (Claude's, unconfirmed)
 
 - **S1** One separator type per row is enough for now (per-boundary choice is in §8).
-- **S2** Content narrower than its width prints as-is, without padding, so widgets later on the row move when it's short. The alternative is to pad to `width` with spaces so positions stay fixed.
 - **S3** The default placeholder frames are `◐◓◑◒`, dimmed, advancing once a second. Any frames can be configured in the webapp.
 - **S4** `hideAbsent` is a single setting for the whole manifest; there's no per-widget override.
