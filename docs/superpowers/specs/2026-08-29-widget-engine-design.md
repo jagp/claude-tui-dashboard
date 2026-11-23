@@ -1,5 +1,11 @@
 # Widget engine — the manifest ⇄ engine contract
 
+> **Superseded 2026-11-22 by `2026-11-22-widget-engine-lean.md`.** Its §7
+> lists which parts of this draft still apply (templates, ramps, colors,
+> tip/do, sensor catalog). Void: clusters as structure, glue, show, fill,
+> twins, flex items, §6.3, §6.4, §8 v1 compatibility, §10 fidelity, and
+> assumptions A1, A3 and A5.
+
 **Date:** 2026-08-29
 **Status:** DRAFT for review — Claude's proposal, unratified. Every evaluative
 call in this document is Claude's assessment unless marked otherwise; the
