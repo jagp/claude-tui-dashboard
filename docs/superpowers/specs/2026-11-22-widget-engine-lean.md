@@ -24,7 +24,7 @@ output.
 | D2 | The manifest is `~/.claude/dashboard.json` with `version: 2`. The plugin ships `dashboard.default.json`. |
 | D3 | `cluster` is a documentation label only. The engine ignores it. |
 | D4 | A widget may bind several sensors. There is no one-sensor rule. |
-| D5 | **Hiding is a manifest toggle, `hideAbsent`, and it defaults to off.** With it off, a widget with no data shows the **placeholder**: a single animated glyph that means "collecting data" (§5). The webapp exposes both the toggle and the placeholder. |
+| D5 | **Hiding is a manifest toggle, `hideAbsent`, and it defaults to off.** With it off, a widget with no data shows the **placeholder**: a single animated glyph that means "collecting data" (§5). With it on, the widget shows blank space. Either way it still occupies its declared width (D7). The webapp exposes both the toggle and the placeholder. |
 | D6 | **No smart layout.** The engine never collapses, reflows or drops anything, and it pads only to fill a widget's declared width (D7). Separators come from the layout, and no widget owns one. |
 | D7 | **Widgets declare their width,** in terminal cells, and may declare as much as their content needs. A widget always occupies exactly its width. Shorter content is padded with trailing spaces, so positions further along the row stay fixed. Content wider than its width is cut to `width − 1` cells and ends with a 1-cell ellipsis (`…`). The webapp enforces each row's budget while the user builds the bar. |
 | D8 | Keep this spec lean: anything not needed now is listed in §8. |
@@ -52,7 +52,7 @@ output.
 }
 ```
 
-- **`hideAbsent`** (bool, default `false`): when it's on, a widget with no data prints nothing instead of the placeholder.
+- **`hideAbsent`** (bool, default `false`): when it's on, a widget with no data prints blank space (`width` spaces) instead of the placeholder.
 - **`placeholder`**: the frames of the animated glyph, and its color.
 - **`separators`** are separator types: the text each one prints and the cells it takes.
 - **`rows[].separator`** names the type that goes between adjacent widgets on that row. **`budget`** is the row's width in cells, which the webapp enforces.
@@ -69,7 +69,8 @@ For each row, in `rows` order:
 3. Join adjacent widgets with the row's separator. Put none before the first widget or after the last.
 4. Join the rows with newlines.
 
-That's the whole layout. A hidden widget prints nothing, and the separators on
+That's the whole layout. Layout depends only on widths and never on what a
+widget shows: a hidden widget is `width` blank cells, and the separators on
 both sides of it still print. The webapp checks the budget with
 `Σ widths + (n − 1) × separator width ≤ budget`.
 
@@ -77,7 +78,7 @@ both sides of it still print. The webapp checks the budget with
 
 - **Cells, not characters.** Width is measured in terminal cells. Emoji and East Asian wide characters count as 2. The engine and the webapp must share one cell-width function.
 - **Exact width:** every rendered widget, the placeholder included, occupies exactly `width` cells. Shorter content is padded on the right with spaces. Content wider than `width` is cut to `width − 1` cells and ends with `…`.
-- **No data:** a widget is *absent* when every sensor it binds is absent. An absent widget renders the placeholder's current frame, or nothing when `hideAbsent` is on. If only some of its sensors are absent, the template fragments that use them drop out (the August draft's "drop the whole fragment" rule).
+- **No data:** a widget is *absent* when every sensor it binds is absent. An absent widget renders the placeholder's current frame, or blank space when `hideAbsent` is on. Both are padded to `width`. If only some of its sensors are absent, the template fragments that use them drop out (the August draft's "drop the whole fragment" rule).
 - **Animation:** the frame is `frames[floor(now / 1 s) mod frames.length]`, so the glyph moves forward each time the bar redraws.
 - **Errors:** a widget whose rendering throws is treated as absent.
 
@@ -90,7 +91,8 @@ Tests pin this contract, not today's output. They cover: slot ordering,
 separator insertion (none at the row edges, and still printed around a
 hidden widget), cell-width measurement including emoji, padding short content to width,
 overflow truncation,
-the placeholder and its frame selection, the `hideAbsent` toggle,
+the placeholder and its frame selection, the `hideAbsent` toggle (a hidden
+widget keeps its width),
 partial-absence fragment dropping, multi-sensor templates, and the budget
 arithmetic shared with the webapp.
 
