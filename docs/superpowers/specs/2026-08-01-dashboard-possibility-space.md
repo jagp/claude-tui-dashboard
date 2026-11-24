@@ -2,7 +2,7 @@
 
 **Date:** 2026-08-01
 **Status:** Research catalog (living document)
-**Predecessors:** `2026-07-11-claude-dashboard-design.md` (v1 spec), `dashboard-controls-catalog.md`
+**Predecessors:** `../archive/2026-07-11-claude-dashboard-design.md` (v1 spec, archived), `dashboard-controls-catalog.md`
 **Method:** 5-agent parallel research sweep (statusline ecosystem, fleet
 dashboards, CC issue tracker, OSC 8 physics, skills marketplaces) + source
 reads of microsoft/terminal, microsoft/vscode, xterm.js, and the CC statusline

@@ -1,5 +1,10 @@
 # Claude Dashboard v1 Implementation Plan
 
+> **Historical (archived 2026-11-24).** This is a v1 document. The widget
+> engine is specified by `docs/superpowers/specs/2026-11-22-widget-engine-lean.md`,
+> which carries forward the constraints worth keeping (§5.2) and records the
+> unbuilt v1 ideas (§8). Do not plan from this file.
+
 > **For agentic workers:** REQUIRED SUB-SKILL: Use superpowers:subagent-driven-development (recommended) or superpowers:executing-plans to implement this plan task-by-task. Steps use checkbox (`- [ ]`) syntax for tracking.
 
 **Goal:** Ship the v1 dashboard — enriched statusline (Tier 0), session-state sensor, config-driven control buttons, and the `claudectl://` protocol actuator (Tier 1) — per `docs/superpowers/specs/2026-07-11-claude-dashboard-design.md`.

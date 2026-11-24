@@ -1,5 +1,10 @@
 # Claude Code Dashboard — Design Spec
 
+> **Historical (archived 2026-11-24).** This is a v1 document. The widget
+> engine is specified by `docs/superpowers/specs/2026-11-22-widget-engine-lean.md`,
+> which carries forward the constraints worth keeping (§5.2) and records the
+> unbuilt v1 ideas (§8). Do not plan from this file.
+
 **Date:** 2026-07-11
 **Status:** Draft for review
 **Predecessor:** `HOTSTART.md` (feasibility findings, 2026-07-09)
