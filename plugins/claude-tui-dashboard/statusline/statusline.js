@@ -50,6 +50,74 @@ const os = require("os");
 const path = require("path");
 const cp = require("child_process");
 
+// Run as a program (Claude Code pipes session JSON in) vs. required by the
+// engine tests, which only want the functions exported at the end of the file.
+const RUN_AS_PROGRAM = require.main === module;
+
+// --- cell width (lean spec §5.1, widget engine v2) ---------------------------
+//
+// How many terminal cells a string takes up, so every widget can be fitted to
+// exactly its declared width. Must agree with the webapp's copy
+// (webapp/index.html, the `// <contract>` block); both are tested against
+// contract/cell-width.vectors.json.
+//   1. strip escape sequences: OSC (ends in BEL or ESC \), then CSI (colors)
+//   2. split into graphemes (what the eye sees as one character)
+//   3. add up each grapheme's cells: 2, 1 or 0
+
+// East Asian Wide/Fullwidth code-point ranges (2 cells each). A copy of
+// `eastAsianWide` in contract/cell-width.vectors.json: this file deploys alone,
+// so it can't read that file; tests/engine.tests.js fails if the two differ.
+const EAST_ASIAN_WIDE = [
+  [0x1100, 0x115F], [0x2E80, 0x303E], [0x3041, 0x33FF], [0x3400, 0x4DBF], [0x4E00, 0x9FFF],
+  [0xA000, 0xA4CF], [0xAC00, 0xD7A3], [0xF900, 0xFAFF], [0xFE30, 0xFE4F], [0xFF00, 0xFF60],
+  [0xFFE0, 0xFFE6], [0x20000, 0x2FFFD], [0x30000, 0x3FFFD],
+];
+const SEGMENTER = new Intl.Segmenter(undefined, { granularity: "grapheme" });
+
+function stripAnsi(text) {
+  return String(text)
+    .replace(/\x1b\][^\x07\x1b]*(?:\x07|\x1b\\)/g, "")   // OSC 8 links (either terminator)
+    .replace(/\x1b\[[0-9;?]*[ -\/]*[@-~]/g, "");        // CSI: colors, cursor moves
+}
+
+// One grapheme's cells:
+//   - emoji presentation, a flag letter, or a VS16 (U+FE0F) anywhere -> 2
+//   - first code point East Asian Wide/Fullwidth                    -> 2
+//   - only zero-width code points (marks, ZW space/joiners, VS)     -> 0
+//   - anything else                                                 -> 1
+function graphemeWidth(grapheme) {
+  if (/\p{Emoji_Presentation}|\p{Regional_Indicator}|️/u.test(grapheme)) return 2;
+  const first = grapheme.codePointAt(0);
+  if (EAST_ASIAN_WIDE.some(([start, end]) => first >= start && first <= end)) return 2;
+  if (/^[\p{M}​-‍︀-️]+$/u.test(grapheme)) return 0;
+  return 1;
+}
+
+const graphemes = (text) => Array.from(SEGMENTER.segment(String(text)), (part) => part.segment);
+
+function cellWidth(text) {
+  return graphemes(stripAnsi(text)).reduce((total, grapheme) => total + graphemeWidth(grapheme), 0);
+}
+
+// Exact width (lean §5, D7). Plain text in, plain text out, always `width` cells:
+//   fits:     pad on the right with spaces up to `width`
+//   too wide: keep whole graphemes while they fit in width - 1 cells, add "…",
+//             then pad (a space fills the gap a cut 2-cell grapheme leaves)
+function fitText(text, width) {
+  const plain = String(text);
+  const total = cellWidth(plain);
+  if (total <= width) return plain + " ".repeat(width - total);
+  let kept = "";
+  let used = 0;
+  for (const grapheme of graphemes(plain)) {
+    const cells = graphemeWidth(grapheme);
+    if (used + cells > width - 1) break;
+    kept += grapheme;
+    used += cells;
+  }
+  return kept + "…" + " ".repeat(width - used - 1);
+}
+
 // --- CI refresh mode ---------------------------------------------------------
 
 // `node statusline.js --ci-refresh <cwd> <pr ref> <cacheFile> <lockFile>` is
@@ -61,7 +129,7 @@ const cp = require("child_process");
 // in a different repo than cwd), else its number.
 //   1. `gh pr view --json state` → OPEN / MERGED / CLOSED, or null on failure
 //   2. `gh pr checks --json bucket` → the pass/fail/pending rollup
-if (process.argv[2] === "--ci-refresh") {
+if (RUN_AS_PROGRAM && process.argv[2] === "--ci-refresh") {
   const [, , , ciCwd, prRef, cacheFile, lockFile] = process.argv;
   const ghJson = (args) => {                                     // run gh, parse its JSON, null on any failure
     const r = cp.spawnSync("gh", args, {
@@ -104,18 +172,22 @@ if (process.argv[2] === "--ci-refresh") {
   process.exit(0);
 }
 
-let raw = "";
-process.stdin.setEncoding("utf8");
-process.stdin.on("data", (chunk) => (raw += chunk));
-process.stdin.on("end", () => {
-  let line = "status";
-  try {
-    line = render(JSON.parse(raw), raw);
-  } catch {
-    // Leave the fallback; never throw out of the status command.
-  }
-  process.stdout.write(line + "\n");
-});
+// Render mode: read the session JSON from stdin, print the bar. Skipped when
+// required by the tests (RUN_AS_PROGRAM false), so they don't wait on stdin.
+if (RUN_AS_PROGRAM) {
+  let raw = "";
+  process.stdin.setEncoding("utf8");
+  process.stdin.on("data", (chunk) => (raw += chunk));
+  process.stdin.on("end", () => {
+    let line = "status";
+    try {
+      line = render(JSON.parse(raw), raw);
+    } catch {
+      // Leave the fallback; never throw out of the status command.
+    }
+    process.stdout.write(line + "\n");
+  });
+}
 
 // --- glyph scales (swap any of these in one place) --------------------------
 
@@ -1218,3 +1290,7 @@ function render(d, rawJson) {
   if (row3) lines.push(row3);
   return lines.join("\n");
 }
+
+// The engine's pure functions, for tests/engine.tests.js. Only when required:
+// run as a program, this file exports nothing.
+if (!RUN_AS_PROGRAM) module.exports = { EAST_ASIAN_WIDE, stripAnsi, cellWidth, fitText };
