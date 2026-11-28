@@ -4,9 +4,9 @@
 
 **Goal:** Replace the hard-coded statusline with a manifest-driven widget engine (`version: 2`), and give the webapp a v2 editor that previews and exports the same manifest.
 
-**Architecture:** `statusline.js` stays one deployable file and becomes engine + sensors; the bar's content moves to `dashboard.default.json`, deployed beside it. Sensors return plain readings; the engine resolves templates, fits plain text to the declared width, then applies color and link dress. The webapp reimplements only the shared contract (cell width, fitting, row layout, validation) and proves it against the same vector files.
+**Architecture:** `statusline.js` becomes engine + sensors; the bar's content moves to `dashboard.default.json`, deployed beside it. Sensors return plain readings; the engine resolves templates, fits plain text to the declared width, then applies color and link dress. The shared contract (cell width, fitting, row layout, templates, validation) is written once, in `statusline/statusline-contract.js`, deployed beside `statusline.js`; the engine `require()`s it and the webapp loads it with a `<script>` tag. (Changed 2026-11-28 at the user's direction: "saved once, served twice". It replaced a webapp copy proven equal by tests.)
 
-**Tech Stack:** Plain Node ≥ 20, CommonJS, no npm dependencies; a single self-contained `webapp/index.html`; PowerShell only for the existing handler tests.
+**Tech Stack:** Plain Node ≥ 20, CommonJS, no npm dependencies; `webapp/index.html` plus the shared contract script it loads; PowerShell only for the existing handler tests.
 
 **Spec:** `docs/superpowers/specs/2026-11-22-widget-engine-lean.md` (ratified 2026-11-24). It defers to `docs/superpowers/specs/2026-08-29-widget-engine-design.md` for templates (§5.3), ramps (§5.4), colors and dress (§5.5), the link URI (§5.6), the tick (§6.1), and the sensor catalog (§7). Read both.
 

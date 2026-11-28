@@ -120,7 +120,8 @@ graphemeWidth(g):
 current browsers, so neither side needs a library. The East Asian Wide and
 Fullwidth test is a short, fixed list of code-point ranges; the list is
 stored under the `eastAsianWide` key of `cell-width.vectors.json` and
-copied into both implementations. (Flags are two regional indicators and
+copied into the one shared implementation (`statusline-contract.js`, which
+the engine and the webapp both load). (Flags are two regional indicators and
 keycaps are `digit + FE0F + 20E3`; neither is `Extended_Pictographic` with
 presentation, which is why the first rule tests presentation directly.) *Claude's call:* the vectors, not the prose, are the
 tiebreaker if the two ever disagree.
