@@ -1,5 +1,6 @@
 # Fully reverses claudectl-register.ps1 (idempotent; user-level, no admin):
 # 1. Restores the statusline cached at install time (statusline.js.pre-claudectl.bak)
+#    and deletes the dashboard's statusline-contract.js, which it no longer needs
 # 2. Removes the claudectl:// protocol key
 # 3. Removes the Windows Apps & Features uninstall entry
 # 4. Deletes the deployed handler files from ~/.claude (including this script's
@@ -16,6 +17,11 @@ $backup = Join-Path $dest 'statusline.js.pre-claudectl.bak'
 if (Test-Path $backup) {
   Move-Item -Force $backup $statusline
   Write-Output 'statusline.js restored from pre-claudectl cache'
+  # The restored statusline is the user's own, so the dashboard's shared
+  # rules file beside it is dead weight. (No cache: our statusline.js stays,
+  # and it still loads this file, so it stays too.)
+  $contract = Join-Path $dest 'statusline-contract.js'
+  if (Test-Path $contract) { Remove-Item -Force $contract }
 } else {
   Write-Output 'no statusline cache found; statusline.js left as-is'
 }
