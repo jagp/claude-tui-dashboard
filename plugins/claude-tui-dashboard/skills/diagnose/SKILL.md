@@ -22,7 +22,7 @@ the fix was wrong.
 
 | # | Gate | Probe | Fix |
 |---|------|-------|-----|
-| 1 | `statusline.js` emits OSC 8 | Pipe sample JSON through it; output must contain `]8;;` | Redeploy from `${CLAUDE_PLUGIN_ROOT}/statusline/statusline.js` |
+| 1 | `statusline.js` emits OSC 8 | Pipe sample JSON through it; output must contain `]8;;` | Redeploy `statusline.js` and `statusline-contract.js` from `${CLAUDE_PLUGIN_ROOT}/statusline/` |
 | 2 | Claude Code passes it through | Raw-link probe works but statusline links don't | `FORCE_HYPERLINK=1` in the env of the `claude` process; Claude Code ≥ 2.1.217 (IDE terminals only — see Upstream) |
 | 3 | pty layer preserves sequences | No hover tooltip at all on link text | VS Code: `"terminal.integrated.windowsUseConptyDll": false` — the setting **defaults to true** (bundled conpty.dll, which strips OSC 8); OS ConPTY on Win11 24H2+ passes it |
 | 4 | Terminal activates the scheme | Tooltip says "Search workspace" instead of showing the URL | VS Code: add `"claudectl"` to `terminal.integrated.allowedLinkSchemes` (list REPLACES defaults — re-list `file,http,https,mailto,vscode,vscode-insiders`) |
@@ -86,7 +86,7 @@ Checked in the field once each; keep for stubborn cases:
 - `terminal.integrated.gpuAcceleration: "off"` forces the DOM renderer, which
   has had link-hover quirks — try `"auto"`.
 - Full VS Code restart (vs window reload) and "Developer: Restart Pty Host".
-- Stale deploy: diff `~/.claude/statusline.js` against the plugin copy.
+- Stale deploy: diff `~/.claude/statusline.js` and `~/.claude/statusline-contract.js` against the plugin copies.
 - `security.promptForLocalFileProtocolHandling` — a *later* gate than the
   scheme allowlist; independent of it.
 - First activation of a non-allowlisted scheme should show a VS Code prompt

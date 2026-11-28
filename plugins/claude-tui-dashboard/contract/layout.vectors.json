@@ -1,0 +1,123 @@
+{
+  "$comment": [
+    "PURPOSE: Tests where widgets land on a row: padding, cutting, separators, slot order.",
+    "Used by: webapp tests and engine tests. Both must produce exactly expectRows.",
+    "Static widgets only (a label, no sensors). expectWidths[i] is the cell width of expectRows[i].",
+    "Defaults are left out of each case: separators (space, pipe), the placeholder, hideAbsent false, budget 78.",
+    "Spec: lean spec 4."
+  ],
+  "cases": [
+    {
+      "name": "pad-and-sep",
+      "manifest": {
+        "version": 2,
+        "rows": [{"row": 1, "separator": "space"}],
+        "widgets": [
+          {"id": "a", "row": 1, "slot": 1, "width": 4, "label": "ab"},
+          {"id": "b", "row": 1, "slot": 2, "width": 2, "label": "c"}
+        ]
+      },
+      "expectRows": ["ab   c "],
+      "expectWidths": [7]
+    },
+    {
+      "name": "sep-override",
+      "manifest": {
+        "version": 2,
+        "rows": [{"row": 1, "separator": "space"}],
+        "widgets": [
+          {"id": "a", "row": 1, "slot": 1, "width": 1, "label": "a"},
+          {"id": "b", "row": 1, "slot": 2, "width": 1, "label": "b", "sep": "pipe"}
+        ]
+      },
+      "expectRows": ["a │ b"],
+      "expectWidths": [5]
+    },
+    {
+      "name": "overflow",
+      "manifest": {
+        "version": 2,
+        "rows": [{"row": 1, "separator": "space"}],
+        "widgets": [{"id": "a", "row": 1, "slot": 1, "width": 4, "label": "abcdef"}]
+      },
+      "expectRows": ["abc…"],
+      "expectWidths": [4]
+    },
+    {
+      "name": "wide-cut",
+      "manifest": {
+        "version": 2,
+        "rows": [{"row": 1, "separator": "space"}],
+        "widgets": [{"id": "a", "row": 1, "slot": 1, "width": 4, "label": "中文字"}]
+      },
+      "expectRows": ["中… "],
+      "expectWidths": [4]
+    },
+    {
+      "name": "first-sep-ignored",
+      "manifest": {
+        "version": 2,
+        "rows": [{"row": 1, "separator": "space"}],
+        "widgets": [
+          {"id": "a", "row": 1, "slot": 1, "width": 1, "label": "a", "sep": "pipe"},
+          {"id": "b", "row": 1, "slot": 2, "width": 1, "label": "b"}
+        ]
+      },
+      "expectRows": ["a b"],
+      "expectWidths": [3]
+    },
+    {
+      "name": "two-rows",
+      "manifest": {
+        "version": 2,
+        "rows": [{"row": 1, "separator": "space"}, {"row": 2, "separator": "space"}],
+        "widgets": [
+          {"id": "x", "row": 1, "slot": 1, "width": 1, "label": "x"},
+          {"id": "y", "row": 2, "slot": 1, "width": 2, "label": "y"}
+        ]
+      },
+      "expectRows": ["x", "y "],
+      "expectWidths": [1, 2]
+    },
+    {
+      "name": "slot-order",
+      "manifest": {
+        "version": 2,
+        "rows": [{"row": 1, "separator": "space"}],
+        "widgets": [
+          {"id": "b", "row": 1, "slot": 2, "width": 1, "label": "b"},
+          {"id": "a", "row": 1, "slot": 1, "width": 1, "label": "a"}
+        ]
+      },
+      "expectRows": ["a b"],
+      "expectWidths": [3]
+    },
+    {
+      "name": "slot-tie",
+      "manifest": {
+        "version": 2,
+        "rows": [{"row": 1, "separator": "space"}],
+        "widgets": [
+          {"id": "a", "row": 1, "slot": 1, "width": 1, "label": "a"},
+          {"id": "b", "row": 1, "slot": 1, "width": 1, "label": "b"}
+        ]
+      },
+      "expectRows": ["a b"],
+      "expectWidths": [3]
+    },
+    {
+      "name": "row-default-pipe",
+      "manifest": {
+        "version": 2,
+        "rows": [{"row": 1, "separator": "pipe"}],
+        "widgets": [
+          {"id": "a", "row": 1, "slot": 1, "width": 1, "label": "a"},
+          {"id": "b", "row": 1, "slot": 2, "width": 1, "label": "b", "sep": "space"},
+          {"id": "c", "row": 1, "slot": 3, "width": 1, "label": "c"}
+        ]
+      },
+      "expectRows": ["a b │ c"],
+      "expectWidths": [7]
+    }
+  ]
+}

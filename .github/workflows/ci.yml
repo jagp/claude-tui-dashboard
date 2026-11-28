@@ -20,6 +20,10 @@ jobs:
           node-version: 20
       - name: Statusline suite
         run: node plugins/claude-tui-dashboard/tests/run-tests.js
+      - name: Engine contract suite
+        run: node plugins/claude-tui-dashboard/tests/engine.tests.js
+      - name: Webapp contract suite
+        run: node tests/webapp/contract.tests.js
       - name: Protocol handler suite
         shell: powershell
         run: powershell -NoProfile -ExecutionPolicy Bypass -File plugins/claude-tui-dashboard/tests/handler.tests.ps1

@@ -50,6 +50,24 @@ const os = require("os");
 const path = require("path");
 const cp = require("child_process");
 
+// Run as a program (Claude Code pipes session JSON in) vs. required by the
+// engine tests, which only want the functions exported at the end of the file.
+const RUN_AS_PROGRAM = require.main === module;
+
+// --- shared contract (widget engine v2) -------------------------------------
+//
+// The rules the statusline and the webapp must agree on (cell width, exact-
+// width fitting, row layout, templates, manifest validation) live in ONE file,
+// statusline-contract.js, beside this one. The webapp loads the same file, so
+// its preview cannot drift from what prints here. activate-dashboard deploys
+// both files to ~/.claude.
+// Loaded defensively: if the file is missing, CONTRACT stays null and the
+// legacy bar still prints (the engine must never throw).
+let CONTRACT = null;
+try {
+  CONTRACT = require(path.join(__dirname, "statusline-contract.js"));
+} catch {}
+
 // --- CI refresh mode ---------------------------------------------------------
 
 // `node statusline.js --ci-refresh <cwd> <pr ref> <cacheFile> <lockFile>` is
@@ -61,7 +79,7 @@ const cp = require("child_process");
 // in a different repo than cwd), else its number.
 //   1. `gh pr view --json state` → OPEN / MERGED / CLOSED, or null on failure
 //   2. `gh pr checks --json bucket` → the pass/fail/pending rollup
-if (process.argv[2] === "--ci-refresh") {
+if (RUN_AS_PROGRAM && process.argv[2] === "--ci-refresh") {
   const [, , , ciCwd, prRef, cacheFile, lockFile] = process.argv;
   const ghJson = (args) => {                                     // run gh, parse its JSON, null on any failure
     const r = cp.spawnSync("gh", args, {
@@ -104,18 +122,22 @@ if (process.argv[2] === "--ci-refresh") {
   process.exit(0);
 }
 
-let raw = "";
-process.stdin.setEncoding("utf8");
-process.stdin.on("data", (chunk) => (raw += chunk));
-process.stdin.on("end", () => {
-  let line = "status";
-  try {
-    line = render(JSON.parse(raw), raw);
-  } catch {
-    // Leave the fallback; never throw out of the status command.
-  }
-  process.stdout.write(line + "\n");
-});
+// Render mode: read the session JSON from stdin, print the bar. Skipped when
+// required by the tests (RUN_AS_PROGRAM false), so they don't wait on stdin.
+if (RUN_AS_PROGRAM) {
+  let raw = "";
+  process.stdin.setEncoding("utf8");
+  process.stdin.on("data", (chunk) => (raw += chunk));
+  process.stdin.on("end", () => {
+    let line = "status";
+    try {
+      line = render(JSON.parse(raw), raw);
+    } catch {
+      // Leave the fallback; never throw out of the status command.
+    }
+    process.stdout.write(line + "\n");
+  });
+}
 
 // --- glyph scales (swap any of these in one place) --------------------------
 
@@ -1218,3 +1240,7 @@ function render(d, rawJson) {
   if (row3) lines.push(row3);
   return lines.join("\n");
 }
+
+// For tests/engine.tests.js: when required (not run as a program), hand over
+// the contract functions this engine runs on.
+if (!RUN_AS_PROGRAM) module.exports = CONTRACT || {};
