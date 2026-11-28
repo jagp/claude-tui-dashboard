@@ -35,9 +35,12 @@ where this README and the spec disagree, the spec wins.
 ## How to open
 
 Open the hosted page in any current browser, or open `webapp/index.html`
-from a checkout. It is a single file with no build step and no server: the
-styles and scripts are inline, and the only outside request is for the web
-fonts, which fall back to the system monospace font when offline.
+from a checkout. There is no build step and no server. The page's own styles
+and scripts are inline; it also loads one shared script,
+`../plugins/claude-tui-dashboard/statusline/statusline-contract.js` (see
+[Tests](#tests)), so whatever hosts the page must serve the repository root,
+not only `webapp/`. The only outside request is for the web fonts, which fall
+back to the system monospace font when offline.
 
 State autosaves to `localStorage` on every change and restores on load.
 
@@ -229,13 +232,15 @@ rule faithfully.
 ## Tests
 
 ```bash
-node tests/webapp/contract.tests.js
+node plugins/claude-tui-dashboard/tests/engine.tests.js   # the shared rules
+node tests/webapp/contract.tests.js                       # webapp-only checks
 ```
 
 Everything that must match the statusline (cell width, fitting, layout,
-templates, validation) lives in one `<script id="contract">`
-block in `index.html`, between the `// <contract>` and `// </contract>`
-comments, with no DOM access. The test cuts that block out and runs it against
+templates, validation) lives in one file,
+`plugins/claude-tui-dashboard/statusline/statusline-contract.js`, with no DOM
+access. The statusline `require()`s it and this page loads it with a
+`<script>` tag, so there is one copy, not two. The engine tests run it against
 the shared files in `plugins/claude-tui-dashboard/contract/`:
 
 | File | Pins |
@@ -246,9 +251,10 @@ the shared files in `plugins/claude-tui-dashboard/contract/`:
 | `manifest.vectors.json` | which manifests are invalid, and the exact reason |
 | `sensors.sample.json` | the readings the preview uses |
 
-The engine runs the same files, so neither side edits them alone. The block
-holds copies of the East Asian Wide ranges and the sample readings; the test
-fails if a copy drifts from its file. CI runs the test on every push.
+Two data copies remain, each pinned by a test: the East Asian Wide ranges in
+the shared file, and the sample readings embedded in `index.html`. The webapp
+test also fails if the page stops loading the shared file or declares its own
+copy of any shared function. CI runs both tests on every push.
 
 ## The StateStore seam
 
