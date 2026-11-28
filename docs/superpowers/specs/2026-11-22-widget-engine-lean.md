@@ -108,9 +108,8 @@ cellWidth(text):
   return total
 
 graphemeWidth(g):
-  if g matches /\p{Extended_Pictographic}/ and
-     (g contains U+FE0F or g contains U+200D or
-      g's first code point has Emoji_Presentation)   -> 2
+  if g contains a code point with Emoji_Presentation
+     or Regional_Indicator, or contains U+FE0F        -> 2
   if g's first code point is East Asian Wide or Fullwidth -> 2
   if g is only zero-width code points
      (combining marks, U+200B–U+200D, U+FE00–U+FE0F)  -> 0
@@ -120,8 +119,10 @@ graphemeWidth(g):
 `Intl.Segmenter` and Unicode property escapes exist in Node ≥ 20 and in
 current browsers, so neither side needs a library. The East Asian Wide and
 Fullwidth test is a short, fixed list of code-point ranges; the list is
-written once in the conformance file's header and copied into both
-implementations. *Claude's call:* the vectors, not the prose, are the
+stored under the `eastAsianWide` key of `cell-width.vectors.json` and
+copied into both implementations. (Flags are two regional indicators and
+keycaps are `digit + FE0F + 20E3`; neither is `Extended_Pictographic` with
+presentation, which is why the first rule tests presentation directly.) *Claude's call:* the vectors, not the prose, are the
 tiebreaker if the two ever disagree.
 
 ### 5.2 Constraints carried from the v1 plan
