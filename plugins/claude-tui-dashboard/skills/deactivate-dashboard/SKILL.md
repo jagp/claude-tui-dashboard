@@ -20,8 +20,9 @@ powershell -NoProfile -ExecutionPolicy Bypass -File "$env:USERPROFILE\.claude\cl
 ```
 
 The script restores `~/.claude/statusline.js` from
-`statusline.js.pre-claudectl.bak` (if the cache exists) and then deletes
-`~/.claude/statusline-contract.js`, which only the dashboard uses. It removes
+`statusline.js.pre-claudectl.bak` if the cache exists, and in that case also
+deletes `~/.claude/statusline-contract.js`, which only the dashboard uses
+(with no cache the dashboard's statusline stays, and so does that file). It removes
 `HKCU:\Software\Classes\claudectl` and the Settings > Apps entry, and deletes
 the deployed handler files. It is idempotent — safe to run twice.
 
