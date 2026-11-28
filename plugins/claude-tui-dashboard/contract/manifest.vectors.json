@@ -1,0 +1,124 @@
+{
+  "$comment": [
+    "PURPOSE: Tests whether dashboard.json files are rejected, and the exact error each one gets.",
+    "Used by: webapp tests and engine tests. reason null means valid; otherwise both report this exact reason.",
+    "Checks run in this order: object, version, rows, widgets, separators, each row, each widget (id, row, slot, width, duplicate id).",
+    "Defaults are left out of each case: separators (space, pipe), the placeholder, hideAbsent false, budget 78."
+  ],
+  "cases": [
+    {
+      "name": "valid-minimal",
+      "manifest": {
+        "version": 2,
+        "rows": [{"row": 1, "separator": "space"}],
+        "widgets": [{"id": "a", "row": 1, "slot": 1, "width": 1, "label": "a"}]
+      },
+      "reason": null
+    },
+    {
+      "name": "valid-no-separators-key",
+      "manifest": {
+        "version": 2,
+        "rows": [{"row": 1, "separator": "space"}],
+        "widgets": [{"id": "a", "row": 1, "slot": 1, "width": 1, "label": "a"}]
+      },
+      "reason": null
+    },
+    {"name": "not-object", "manifest": [], "reason": "manifest must be a JSON object"},
+    {
+      "name": "version-1",
+      "manifest": {
+        "version": 1,
+        "rows": [{"row": 1, "separator": "space"}],
+        "widgets": [{"id": "a", "row": 1, "slot": 1, "width": 1, "label": "a"}]
+      },
+      "reason": "version must be 2"
+    },
+    {
+      "name": "rows-not-array",
+      "manifest": {"version": 2, "rows": {}, "widgets": [{"id": "a", "row": 1, "slot": 1, "width": 1, "label": "a"}]},
+      "reason": "rows must be an array"
+    },
+    {
+      "name": "widgets-not-array",
+      "manifest": {"version": 2, "rows": [{"row": 1, "separator": "space"}], "widgets": null},
+      "reason": "widgets must be an array"
+    },
+    {
+      "name": "row-without-number",
+      "manifest": {
+        "version": 2,
+        "rows": [{"row": 0, "separator": "space"}],
+        "widgets": [{"id": "a", "row": 1, "slot": 1, "width": 1, "label": "a"}]
+      },
+      "reason": "rows[0] needs a positive integer row"
+    },
+    {
+      "name": "separator-width-mismatch",
+      "manifest": {
+        "version": 2,
+        "separators": {"space": {"text": " ", "width": 1}, "pipe": {"text": " │ ", "width": 2}},
+        "rows": [{"row": 1, "separator": "space"}],
+        "widgets": [{"id": "a", "row": 1, "slot": 1, "width": 1, "label": "a"}]
+      },
+      "reason": "separator \"pipe\" declares width 2 but its text is 3 cells"
+    },
+    {
+      "name": "widget-without-id",
+      "manifest": {
+        "version": 2,
+        "rows": [{"row": 1, "separator": "space"}],
+        "widgets": [{"row": 1, "slot": 1, "width": 1, "label": "a"}]
+      },
+      "reason": "widgets[0] needs a non-empty string id"
+    },
+    {
+      "name": "missing-row",
+      "manifest": {
+        "version": 2,
+        "rows": [{"row": 1, "separator": "space"}],
+        "widgets": [{"id": "a", "slot": 1, "width": 1, "label": "a"}]
+      },
+      "reason": "widget \"a\" needs a positive integer row"
+    },
+    {
+      "name": "missing-slot",
+      "manifest": {
+        "version": 2,
+        "rows": [{"row": 1, "separator": "space"}],
+        "widgets": [{"id": "a", "row": 1, "slot": 1.5, "width": 1, "label": "a"}]
+      },
+      "reason": "widget \"a\" needs a positive integer slot"
+    },
+    {
+      "name": "missing-width",
+      "manifest": {
+        "version": 2,
+        "rows": [{"row": 1, "separator": "space"}],
+        "widgets": [{"id": "a", "row": 1, "slot": 1, "label": "a"}]
+      },
+      "reason": "widget \"a\" needs a positive integer width"
+    },
+    {
+      "name": "zero-width",
+      "manifest": {
+        "version": 2,
+        "rows": [{"row": 1, "separator": "space"}],
+        "widgets": [{"id": "a", "row": 1, "slot": 1, "width": 0, "label": "a"}]
+      },
+      "reason": "widget \"a\" needs a positive integer width"
+    },
+    {
+      "name": "duplicate-id",
+      "manifest": {
+        "version": 2,
+        "rows": [{"row": 1, "separator": "space"}],
+        "widgets": [
+          {"id": "a", "row": 1, "slot": 1, "width": 1, "label": "a"},
+          {"id": "a", "row": 1, "slot": 2, "width": 1, "label": "b"}
+        ]
+      },
+      "reason": "duplicate widget id \"a\""
+    }
+  ]
+}

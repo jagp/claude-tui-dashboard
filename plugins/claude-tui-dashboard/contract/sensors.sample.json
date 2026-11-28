@@ -1,0 +1,90 @@
+{
+  "$comment": [
+    "PURPOSE: sample readings for every sensor, so the webapp preview has data to show.",
+    "Used by: the webapp (embedded as SAMPLE_READINGS; a webapp test checks the copy matches this file) and the engine's sensor test.",
+    "One entry per sensor id in the August draft section 7, with exactly that sensor's reading keys.",
+    "Values are what plugins/claude-tui-dashboard/tests/fixtures/full.json should produce."
+  ],
+  "identity": {"model": {"tier": "fable", "name": "Fable 5"}, "effort": {"level": "high"}, "version": "2.0.32"},
+  "context": {"used": 42, "size": 200000, "usedTok": 84210, "usableSize": 167000, "usablePct": "50%", "remaining": 58},
+  "windows": {"count": 2, "key": "five_hour", "short": "5h", "used": 23, "remaining": 77, "resetStamp": "14:40"},
+  "burn": {
+    "rateText": "4.2",
+    "emptyAt": "18:40",
+    "dryBeforeReset": false,
+    "resetAt": "14:40",
+    "sevenDayUsed": 61,
+    "samples": 12
+  },
+  "tokens": {"total": 96310, "in": 84210, "out": 12100, "cacheRead": 80210, "cacheWrite": 2450, "cacheHit": "97%"},
+  "cost": {
+    "usd": "$3.42",
+    "wallMs": 5400000,
+    "wall": "1h30m",
+    "apiMs": 483000,
+    "api": "8m03s",
+    "apiShare": 9,
+    "rate": 2.28,
+    "rateText": "$2.28/h"
+  },
+  "cache": {"state": "warm", "left": "4:12", "leftMs": 252000, "ttl": "5m", "expiredAt": null},
+  "session": {"id": "0f8a3c21-77de-4b52-9c40-1b2f3d4e5a6b", "name": "dashboard-possibility", "hue": 141},
+  "churn": {"added": 120, "removed": 30, "net": "+90"},
+  "modes": {
+    "vim": "normal",
+    "thinking": true,
+    "fast": true,
+    "agentName": "reviewer",
+    "agentShort": "rev",
+    "style": "explanatory",
+    "addedDirs": [],
+    "addedCount": 0
+  },
+  "account": {"email": "dev@example.com", "org": "Example Org"},
+  "pet": {"score": 150, "level": 2, "mood": "busy", "fedK": 96, "alive": "1h30m", "lines": 150},
+  "stale": {"stamp": "12:05", "frozen": false, "frozenFor": null},
+  "workspace": {
+    "branch": "feature/dashboard-possibility-space",
+    "branchShort": "f/dashboard-possibility-space",
+    "path": "C:\\Users\\you\\Projects\\my-repo",
+    "pathUrl": "claudectl://open/C:/Users/you/Projects/my-repo",
+    "basename": "my-repo",
+    "wtName": "dashboard-possibility-space",
+    "wtChip": false,
+    "repoOwner": "you",
+    "repoName": "my-repo",
+    "repoUrl": "https://github.com/you/my-repo",
+    "baseBranch": "develop",
+    "baseTarget": "develop"
+  },
+  "git": {
+    "ahead": 2,
+    "behind": null,
+    "staged": 3,
+    "modified": 1,
+    "untracked": null,
+    "conflicts": null,
+    "stash": null,
+    "op": null,
+    "clean": false
+  },
+  "pr": {
+    "number": 12,
+    "url": "https://github.com/you/my-repo/pull/12",
+    "reviewState": "approved",
+    "checksUrl": "https://github.com/you/my-repo/pull/12/checks"
+  },
+  "ci": {
+    "pass": 5,
+    "fail": 0,
+    "pending": 0,
+    "total": 5,
+    "checksUrl": "https://github.com/you/my-repo/pull/12/checks"
+  },
+  "transcript": {
+    "path": "C:\\Users\\you\\.claude\\projects\\C--Users-you-Projects-my-repo\\transcript.jsonl",
+    "pathUrl": "claudectl://open/C:/Users/you/.claude/projects/C--Users-you-Projects-my-repo/transcript.jsonl",
+    "logsDir": "C:\\Users\\you\\.claude\\projects\\C--Users-you-Projects-my-repo",
+    "logsUrl": "claudectl://open/C:/Users/you/.claude/projects/C--Users-you-Projects-my-repo"
+  }
+}

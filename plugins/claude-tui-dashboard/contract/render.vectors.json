@@ -1,0 +1,288 @@
+{
+  "$comment": [
+    "PURPOSE: Tests what a widget prints once its sensor readings are filled in.",
+    "Used by: webapp tests and engine tests. Both must produce exactly expectRows (plain text, no color).",
+    "readings: sensor id -> readings object; a missing or null entry means the sensor has no data. now: time in ms.",
+    "Defaults are left out of each case: separators (space, pipe), the placeholder, hideAbsent false, budget 78.",
+    "Spec: lean spec 5 (templates from the August draft 5.3)."
+  ],
+  "cases": [
+    {
+      "name": "alias-reading",
+      "note": "sensor:git is shorthand for sensors {git:git}",
+      "manifest": {
+        "version": 2,
+        "rows": [{"row": 1, "separator": "space"}],
+        "widgets": [{"id": "a", "row": 1, "slot": 1, "width": 4, "label": "↑{git.ahead}", "sensor": "git"}]
+      },
+      "readings": {"git": {"ahead": 2}},
+      "now": 0,
+      "expectRows": ["↑2  "]
+    },
+    {
+      "name": "bare-reading-single-sensor",
+      "note": "with exactly one bound sensor, a bare {reading} reads it (August 9 examples)",
+      "manifest": {
+        "version": 2,
+        "rows": [{"row": 1, "separator": "space"}],
+        "widgets": [{"id": "a", "row": 1, "slot": 1, "width": 4, "label": "↑{ahead}", "sensor": "git"}]
+      },
+      "readings": {"git": {"ahead": 2}},
+      "now": 0,
+      "expectRows": ["↑2  "]
+    },
+    {
+      "name": "parts-drop",
+      "note": "a part whose placeholder is empty drops whole",
+      "manifest": {
+        "version": 2,
+        "rows": [{"row": 1, "separator": "space"}],
+        "widgets": [
+          {
+            "id": "a",
+            "row": 1,
+            "slot": 1,
+            "width": 8,
+            "label": [{"text": "⑂ {ws.branchShort}"}, {"text": "↑{git.ahead}"}],
+            "sensors": {"ws": "workspace", "git": "git"}
+          }
+        ]
+      },
+      "readings": {"workspace": {"branchShort": "dev"}, "git": {"ahead": null}},
+      "now": 0,
+      "expectRows": ["⑂ dev   "]
+    },
+    {
+      "name": "parts-join",
+      "note": "join goes between surviving parts only",
+      "manifest": {
+        "version": 2,
+        "rows": [{"row": 1, "separator": "space"}],
+        "widgets": [
+          {
+            "id": "a",
+            "row": 1,
+            "slot": 1,
+            "width": 6,
+            "label": {
+              "join": " ",
+              "parts": [{"text": "↑{git.ahead}"}, {"text": "↓{git.behind}"}, {"text": "●{git.staged}"}]
+            },
+            "sensor": "git"
+          }
+        ]
+      },
+      "readings": {"git": {"ahead": 2, "behind": null, "staged": 3}},
+      "now": 0,
+      "expectRows": ["↑2 ●3 "]
+    },
+    {
+      "name": "string-label-is-one-unit",
+      "note": "a plain string label is one unit: one empty placeholder blanks it",
+      "manifest": {
+        "version": 2,
+        "rows": [{"row": 1, "separator": "space"}],
+        "widgets": [
+          {
+            "id": "a",
+            "row": 1,
+            "slot": 1,
+            "width": 8,
+            "label": "⑂ {ws.branchShort}{git.ahead}",
+            "sensors": {"ws": "workspace", "git": "git"}
+          }
+        ]
+      },
+      "readings": {"workspace": {"branchShort": "dev"}, "git": {"ahead": null}},
+      "now": 0,
+      "expectRows": ["        "]
+    },
+    {
+      "name": "zero-prints",
+      "note": "0 is a value, only null/empty drop",
+      "manifest": {
+        "version": 2,
+        "rows": [{"row": 1, "separator": "space"}],
+        "widgets": [{"id": "a", "row": 1, "slot": 1, "width": 3, "label": "+{churn.added}", "sensor": "churn"}]
+      },
+      "readings": {"churn": {"added": 0}},
+      "now": 0,
+      "expectRows": ["+0 "]
+    },
+    {
+      "name": "placeholder-frame-0",
+      "note": "absent sensor shows the placeholder",
+      "manifest": {
+        "version": 2,
+        "rows": [{"row": 1, "separator": "space"}],
+        "widgets": [{"id": "a", "row": 1, "slot": 1, "width": 3, "label": "{ci.pass}", "sensor": "ci"}]
+      },
+      "readings": {},
+      "now": 0,
+      "expectRows": ["◐  "]
+    },
+    {
+      "name": "placeholder-frame-1",
+      "note": "frame = floor(now/1000) mod 4",
+      "manifest": {
+        "version": 2,
+        "rows": [{"row": 1, "separator": "space"}],
+        "widgets": [{"id": "a", "row": 1, "slot": 1, "width": 3, "label": "{ci.pass}", "sensor": "ci"}]
+      },
+      "readings": {},
+      "now": 1500,
+      "expectRows": ["◓  "]
+    },
+    {
+      "name": "placeholder-frame-wraps",
+      "note": null,
+      "manifest": {
+        "version": 2,
+        "rows": [{"row": 1, "separator": "space"}],
+        "widgets": [{"id": "a", "row": 1, "slot": 1, "width": 3, "label": "{ci.pass}", "sensor": "ci"}]
+      },
+      "readings": {},
+      "now": 4000,
+      "expectRows": ["◐  "]
+    },
+    {
+      "name": "unknown-sensor",
+      "note": "unknown sensor = absent; the rest of the row is intact",
+      "manifest": {
+        "version": 2,
+        "rows": [{"row": 1, "separator": "space"}],
+        "widgets": [
+          {"id": "a", "row": 1, "slot": 1, "width": 2, "label": "{nope.x}", "sensor": "nope"},
+          {"id": "b", "row": 1, "slot": 2, "width": 1, "label": "b"}
+        ]
+      },
+      "readings": {},
+      "now": 0,
+      "expectRows": ["◐  b"]
+    },
+    {
+      "name": "hidden-manifest",
+      "note": "hidden = width blank cells; separators on both sides still print",
+      "manifest": {
+        "version": 2,
+        "hideAbsent": true,
+        "rows": [{"row": 1, "separator": "space"}],
+        "widgets": [
+          {"id": "a", "row": 1, "slot": 1, "width": 1, "label": "a"},
+          {"id": "h", "row": 1, "slot": 2, "width": 3, "label": "{ci.pass}", "sensor": "ci"},
+          {"id": "b", "row": 1, "slot": 3, "width": 1, "label": "b"}
+        ]
+      },
+      "readings": {},
+      "now": 0,
+      "expectRows": ["a     b"]
+    },
+    {
+      "name": "hidden-widget",
+      "note": null,
+      "manifest": {
+        "version": 2,
+        "rows": [{"row": 1, "separator": "space"}],
+        "widgets": [
+          {
+            "id": "h",
+            "row": 1,
+            "slot": 1,
+            "width": 3,
+            "label": "{ci.pass}",
+            "sensor": "ci",
+            "hideAbsent": true
+          }
+        ]
+      },
+      "readings": {},
+      "now": 0,
+      "expectRows": ["   "]
+    },
+    {
+      "name": "widget-cannot-unhide",
+      "note": "manifest true OR widget true",
+      "manifest": {
+        "version": 2,
+        "hideAbsent": true,
+        "rows": [{"row": 1, "separator": "space"}],
+        "widgets": [{"id": "h", "row": 1, "slot": 1, "width": 3, "label": "{ci.pass}", "sensor": "ci"}]
+      },
+      "readings": {},
+      "now": 0,
+      "expectRows": ["   "]
+    },
+    {
+      "name": "all-fragments-drop",
+      "note": "present sensor, every unit dropped: blank, not placeholder",
+      "manifest": {
+        "version": 2,
+        "rows": [{"row": 1, "separator": "space"}],
+        "widgets": [{"id": "a", "row": 1, "slot": 1, "width": 3, "label": "↑{git.ahead}", "sensor": "git"}]
+      },
+      "readings": {"git": {"ahead": null}},
+      "now": 0,
+      "expectRows": ["   "]
+    },
+    {
+      "name": "partial-absence",
+      "note": "only some sensors absent: their parts drop",
+      "manifest": {
+        "version": 2,
+        "rows": [{"row": 1, "separator": "space"}],
+        "widgets": [
+          {
+            "id": "a",
+            "row": 1,
+            "slot": 1,
+            "width": 6,
+            "label": [{"text": "{ws.basename}"}, {"text": " ↑{git.ahead}"}],
+            "sensors": {"ws": "workspace", "git": "git"}
+          }
+        ]
+      },
+      "readings": {"workspace": {"basename": "repo"}},
+      "now": 0,
+      "expectRows": ["repo  "]
+    },
+    {
+      "name": "glyph-default-label",
+      "note": "label defaults to {glyph}",
+      "manifest": {
+        "version": 2,
+        "rows": [{"row": 1, "separator": "space"}],
+        "widgets": [{"id": "a", "row": 1, "slot": 1, "width": 3, "glyph": "🔥"}]
+      },
+      "readings": {},
+      "now": 0,
+      "expectRows": ["🔥 "]
+    },
+    {
+      "name": "unknown-sep-uses-row-default",
+      "note": null,
+      "manifest": {
+        "version": 2,
+        "rows": [{"row": 1, "separator": "space"}],
+        "widgets": [
+          {"id": "a", "row": 1, "slot": 1, "width": 1, "label": "a"},
+          {"id": "b", "row": 1, "slot": 2, "width": 1, "label": "b", "sep": "nope"}
+        ]
+      },
+      "readings": {},
+      "now": 0,
+      "expectRows": ["a b"]
+    },
+    {
+      "name": "static-never-absent",
+      "note": "no sensors = static, never the placeholder",
+      "manifest": {
+        "version": 2,
+        "rows": [{"row": 1, "separator": "space"}],
+        "widgets": [{"id": "a", "row": 1, "slot": 1, "width": 2, "label": "hi"}]
+      },
+      "readings": {},
+      "now": 0,
+      "expectRows": ["hi"]
+    }
+  ]
+}

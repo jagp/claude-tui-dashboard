@@ -1,0 +1,48 @@
+{
+  "$comment": [
+    "PURPOSE: Tests how many terminal cells a piece of text takes up.",
+    "Used by: webapp tests (tests/webapp/contract.tests.js) and engine tests (plugins/claude-tui-dashboard/tests/engine.tests.js).",
+    "eastAsianWide: [start, end] code-point ranges that count as 2 cells (East Asian Width W and F).",
+    "vectors: [text, expected cells]. Matches the VS Code terminal; ambiguous-width characters count as 1.",
+    "Spec: lean spec 5.1."
+  ],
+  "eastAsianWide": [
+    [4352, 4447],
+    [11904, 12350],
+    [12353, 13311],
+    [13312, 19903],
+    [19968, 40959],
+    [40960, 42191],
+    [44032, 55203],
+    [63744, 64255],
+    [65072, 65103],
+    [65280, 65376],
+    [65504, 65510],
+    [131072, 196605],
+    [196608, 262141]
+  ],
+  "vectors": [
+    ["", 0],
+    ["abc", 3],
+    ["Σ 123", 5],
+    ["é", 1],
+    ["é", 1],
+    ["中文", 4],
+    ["(￣︿￣)", 8],
+    ["🔥", 2],
+    ["⌛", 2],
+    ["❤️", 2],
+    ["❤", 1],
+    ["👨‍👩‍👧", 2],
+    ["🇺🇸", 2],
+    ["1️⃣", 2],
+    ["◐", 1],
+    ["⑂", 1],
+    ["│", 1],
+    ["…", 1],
+    ["​", 0],
+    ["\u001b[31mred\u001b[39m", 3],
+    ["\u001b]8;;https://x\u001b\\link\u001b]8;;\u001b\\", 4],
+    ["\u001b]8;;https://x\u0007link\u001b]8;;\u0007", 4]
+  ]
+}
