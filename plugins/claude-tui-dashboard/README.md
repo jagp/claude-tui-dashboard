@@ -99,13 +99,14 @@ The install skill:
 2. On Windows, registers `claudectl://` (HKCU, no admin) and adds a
    **Settings > Apps** entry ("Claude Control Protocol (claudectl)") so the
    OS-standard uninstall flow works too
-3. Deploys `statusline.js` to `~/.claude/` and points
+3. Deploys `statusline.js` and `statusline-contract.js` to `~/.claude/` and points
    `settings.json > statusLine` at it
 4. Verifies by piping a sample payload through the deployed script
 
 ### Manual install
 
-Copy `statusline/statusline.js` to `~/.claude/statusline.js`, then add to
+Copy `statusline/statusline.js` and `statusline/statusline-contract.js` into
+`~/.claude/` (the first loads the second from its own folder), then add to
 `~/.claude/settings.json`:
 
 ```json
@@ -156,6 +157,7 @@ sequences; text-glyph ramps are the width-safe choice).
 
 ```
 statusline/statusline.js           the statusline (deployed to ~/.claude)
+statusline/statusline-contract.js  widget-engine rules, shared with the webapp (deployed beside it)
 statusline/claudectl-register.ps1  Windows protocol installer (idempotent, HKCU)
 statusline/claudectl-handler.ps1   protocol handler — read-only, Explorer-only
 statusline/claudectl-unregister.ps1  full reversal incl. statusline restore

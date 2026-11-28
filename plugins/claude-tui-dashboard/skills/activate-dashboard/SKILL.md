@@ -36,6 +36,7 @@ skill's base directory (two levels above `skills/activate-dashboard/`) —
 substitute it literally in every command. The files used:
 
 - `${CLAUDE_PLUGIN_ROOT}/statusline/statusline.js` — the statusline itself
+- `${CLAUDE_PLUGIN_ROOT}/statusline/statusline-contract.js` — the widget-engine rules it loads (shared with the webapp); always deployed beside it
 - `${CLAUDE_PLUGIN_ROOT}/statusline/claudectl-register.ps1` — Windows protocol installer
 - `${CLAUDE_PLUGIN_ROOT}/statusline/claudectl-unregister.ps1`, `claudectl-handler.ps1`, `claudectl.vbs` — deployed by the register script
 
@@ -93,8 +94,13 @@ then deploy); today it is echo-only by design.
 
 ## Step 2 — Deploy the statusline
 
-Copy `${CLAUDE_PLUGIN_ROOT}/statusline/statusline.js` to
-`~/.claude/statusline.js`, overwriting.
+Copy both files to `~/.claude/`, overwriting:
+
+- `${CLAUDE_PLUGIN_ROOT}/statusline/statusline.js` → `~/.claude/statusline.js`
+- `${CLAUDE_PLUGIN_ROOT}/statusline/statusline-contract.js` → `~/.claude/statusline-contract.js`
+
+`statusline.js` loads the second file from its own folder. Without it the
+legacy rows still print, but v2 widgets cannot render.
 
 ## Step 3 — Wire up settings.json
 
