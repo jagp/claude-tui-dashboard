@@ -86,7 +86,7 @@ Checked in the field once each; keep for stubborn cases:
 - `terminal.integrated.gpuAcceleration: "off"` forces the DOM renderer, which
   has had link-hover quirks — try `"auto"`.
 - Full VS Code restart (vs window reload) and "Developer: Restart Pty Host".
-- Stale deploy: diff `~/.claude/statusline.js` against the plugin copy.
+- Stale deploy: diff `~/.claude/statusline.js` and `~/.claude/statusline-contract.js` against the plugin copies.
 - `security.promptForLocalFileProtocolHandling` — a *later* gate than the
   scheme allowlist; independent of it.
 - First activation of a non-allowlisted scheme should show a VS Code prompt
